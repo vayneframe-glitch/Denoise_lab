@@ -1408,8 +1408,7 @@ function exportCSV(){
     t.rmul??'',t.pnl??'',t.result,t.grade,
     (t.reason||'').replace(/,/g,';'),(t.lesson||'').replace(/,/g,';')
   ]);
-  const csv=[headers,...rows].map(r=>r.join(',')).join('
-');
+  const csv=[headers,...rows].map(r=>r.join(',')).join('\n');
   const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='denoise_'+currentAccount.name.replace(/\s/g,'_')+'_'+new Date().toISOString().split('T')[0]+'.csv';a.click();
   showToast('⬇ Export สำเร็จ');
 }
