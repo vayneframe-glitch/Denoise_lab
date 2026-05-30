@@ -211,7 +211,7 @@ textarea{resize:vertical;min-height:70px;}
 .tag-section{margin-bottom:14px;}
 .tag-section-title{font-size:9px;color:var(--muted);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:1px;margin-bottom:7px;}
 .tag-pool{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:6px;}
-.tag-pill{padding:4px 10px;border-radius:20px;font-size:10px;font-family:'DM Mono',monospace;cursor:pointer;border:1.5px solid var(--line);background:transparent;color:var(--muted);transition:all .15s;user-select:none;}
+.tag-pill{padding:6px 13px;border-radius:20px;font-size:11.5px;font-family:'DM Mono',monospace;cursor:pointer;border:1.5px solid var(--line);background:transparent;color:var(--muted);transition:all .15s;user-select:none;}
 .tag-pill:hover{border-color:var(--dim);color:var(--text);}
 .tag-pill.active{font-weight:700;}
 .tag-pill.active.wyckoff{background:rgba(167,139,250,.2);border-color:var(--purple);color:var(--purple);}
@@ -510,13 +510,13 @@ textarea{resize:vertical;min-height:70px;}
         <span class="tf-block-badge tf-mtf">MTF</span>
         <span style="font-size:11px;color:var(--muted);">Middle Time Frame — Setup</span>
       </div>
-      <!-- MTF Setup Name -->
-      <div class="fg" style="margin-bottom:10px;">
-        <label>Setup Name (optional)</label>
-        <input type="text" id="mtf-setup-name" placeholder="เช่น Wyckoff Spring + OB Retest...">
+      <!-- MTF Setup Name — auto from tags -->
+      <div style="margin-bottom:10px;">
+        <label style="display:block;margin-bottom:5px;">Setup Name <span style="color:var(--dim);font-size:9px;">(auto จาก Tags)</span></label>
+        <input type="hidden" id="mtf-setup-name"><div id="mtf-setup-preview" style="min-height:34px;background:var(--ink3);border:1px solid var(--line);border-radius:var(--radius-sm);padding:7px 12px;font-size:11px;font-family:'DM Mono',monospace;color:var(--muted);line-height:1.5;">—</div>
       </div>
       <div class="tf-select-row" style="margin-bottom:10px;">
-        <select id="mtf-tf" style="width:auto;">
+        <select id="mtf-tf" style="width:auto;" onchange="updateSetupPreview()">
           <option value="">TF</option><option>H4</option><option>H1</option><option>M30</option><option>M15</option><option>M5</option>
         </select>
       </div>
@@ -707,45 +707,52 @@ const PER_PAGE = 15;
 // DEFAULT TAG LIBRARY
 const DEFAULT_TAGS = {
   mtf: [
-    // WYCKOFF
+    // WYCKOFF — Accumulation
     {id:'m1',cat:'wyckoff',label:'PS'},{id:'m2',cat:'wyckoff',label:'SC'},
     {id:'m3',cat:'wyckoff',label:'AR'},{id:'m4',cat:'wyckoff',label:'ST'},
     {id:'m5',cat:'wyckoff',label:'Spring'},{id:'m6',cat:'wyckoff',label:'UA'},
     {id:'m7',cat:'wyckoff',label:'STB'},{id:'m8',cat:'wyckoff',label:'SOS'},
-    {id:'m9',cat:'wyckoff',label:'LPS'},{id:'m10',cat:'wyckoff',label:'SOW'},
-    {id:'m11',cat:'wyckoff',label:'Upthrust'},{id:'m12',cat:'wyckoff',label:'LPSY'},
-    {id:'m13',cat:'wyckoff',label:'Phase A'},{id:'m14',cat:'wyckoff',label:'Phase B'},
-    {id:'m15',cat:'wyckoff',label:'Phase C'},{id:'m16',cat:'wyckoff',label:'Phase D'},
-    {id:'m17',cat:'wyckoff',label:'Phase E'},{id:'m18',cat:'wyckoff',label:'Accumulation'},
-    {id:'m19',cat:'wyckoff',label:'Distribution'},{id:'m20',cat:'wyckoff',label:'Re-Accumulation'},
-    {id:'m21',cat:'wyckoff',label:'Re-Distribution'},
+    {id:'m9',cat:'wyckoff',label:'LPS'},{id:'m10',cat:'wyckoff',label:'Back Up'},
+    // WYCKOFF — Distribution
+    {id:'m11',cat:'wyckoff',label:'PSY'},{id:'m12',cat:'wyckoff',label:'BC'},
+    {id:'m13',cat:'wyckoff',label:'SOW'},{id:'m14',cat:'wyckoff',label:'Upthrust'},
+    {id:'m15',cat:'wyckoff',label:'LPSY'},{id:'m16',cat:'wyckoff',label:'UTAD'},
+    // WYCKOFF — Phase
+    {id:'m17',cat:'wyckoff',label:'Phase A'},{id:'m18',cat:'wyckoff',label:'Phase B'},
+    {id:'m19',cat:'wyckoff',label:'Phase C'},{id:'m20',cat:'wyckoff',label:'Phase D'},
+    {id:'m21',cat:'wyckoff',label:'Phase E'},
+    // WYCKOFF — Schematic
+    {id:'m22',cat:'wyckoff',label:'Accumulation'},{id:'m23',cat:'wyckoff',label:'Re-Accumulation'},
+    {id:'m24',cat:'wyckoff',label:'Distribution'},{id:'m25',cat:'wyckoff',label:'Re-Distribution'},
     // SMC/ICT
-    {id:'m22',cat:'smc',label:'BOS'},{id:'m23',cat:'smc',label:'CHoCH'},
-    {id:'m24',cat:'smc',label:'MSS'},{id:'m25',cat:'smc',label:'Order Block'},
-    {id:'m26',cat:'smc',label:'Breaker Block'},{id:'m27',cat:'smc',label:'FVG'},
-    {id:'m28',cat:'smc',label:'Imbalance'},{id:'m29',cat:'smc',label:'Liquidity Sweep'},
-    {id:'m30',cat:'smc',label:'SSL'},{id:'m31',cat:'smc',label:'BSL'},
-    {id:'m32',cat:'smc',label:'CISD'},{id:'m33',cat:'smc',label:'Optimal Trade Entry'},
-    {id:'m34',cat:'smc',label:'Judas Swing'},{id:'m35',cat:'smc',label:'Power of 3'},
+    {id:'m26',cat:'smc',label:'BOS'},{id:'m27',cat:'smc',label:'CHoCH'},
+    {id:'m28',cat:'smc',label:'MSS'},{id:'m29',cat:'smc',label:'CISD'},
+    {id:'m30',cat:'smc',label:'Order Block'},{id:'m31',cat:'smc',label:'Breaker Block'},
+    {id:'m32',cat:'smc',label:'FVG'},{id:'m33',cat:'smc',label:'Imbalance'},
+    {id:'m34',cat:'smc',label:'Liquidity Sweep'},{id:'m35',cat:'smc',label:'SSL Sweep'},
+    {id:'m36',cat:'smc',label:'BSL Sweep'},{id:'m37',cat:'smc',label:'OTE'},
+    {id:'m38',cat:'smc',label:'Judas Swing'},{id:'m39',cat:'smc',label:'Power of 3'},
+    {id:'m40',cat:'smc',label:'ICT Killzone'},
     // POI
-    {id:'m36',cat:'poi',label:'Demand Zone'},{id:'m37',cat:'poi',label:'Supply Zone'},
-    {id:'m38',cat:'poi',label:'SRF'},{id:'m39',cat:'poi',label:'OB'},
-    {id:'m40',cat:'poi',label:'Breaker'},{id:'m41',cat:'poi',label:'Mitigation'},
-    {id:'m42',cat:'poi',label:'Gap Fill'},{id:'m43',cat:'poi',label:'Previous High'},
-    {id:'m44',cat:'poi',label:'Previous Low'},
+    {id:'m41',cat:'poi',label:'Demand Zone'},{id:'m42',cat:'poi',label:'Supply Zone'},
+    {id:'m43',cat:'poi',label:'SRF'},{id:'m44',cat:'poi',label:'OB'},
+    {id:'m45',cat:'poi',label:'Mitigation'},{id:'m46',cat:'poi',label:'Gap Fill'},
+    {id:'m47',cat:'poi',label:'Prev High'},{id:'m48',cat:'poi',label:'Prev Low'},
+    {id:'m49',cat:'poi',label:'Weekly High'},{id:'m50',cat:'poi',label:'Weekly Low'},
     // FIBONACCI
-    {id:'m45',cat:'fibo',label:'0.236'},{id:'m46',cat:'fibo',label:'0.382'},
-    {id:'m47',cat:'fibo',label:'0.5'},{id:'m48',cat:'fibo',label:'0.618'},
-    {id:'m49',cat:'fibo',label:'0.705'},{id:'m50',cat:'fibo',label:'0.786'},
-    {id:'m51',cat:'fibo',label:'OTE'},{id:'m52',cat:'fibo',label:'1.272'},
-    {id:'m53',cat:'fibo',label:'1.618'},
+    {id:'m51',cat:'fibo',label:'0.236'},{id:'m52',cat:'fibo',label:'0.382'},
+    {id:'m53',cat:'fibo',label:'0.5'},{id:'m54',cat:'fibo',label:'0.618'},
+    {id:'m55',cat:'fibo',label:'0.705'},{id:'m56',cat:'fibo',label:'0.786'},
+    {id:'m57',cat:'fibo',label:'OTE'},{id:'m58',cat:'fibo',label:'1.272'},
+    {id:'m59',cat:'fibo',label:'1.618'},
     // PRICE ACTION
-    {id:'m54',cat:'pa',label:'Pin Bar'},{id:'m55',cat:'pa',label:'Engulfing'},
-    {id:'m56',cat:'pa',label:'Inside Bar'},{id:'m57',cat:'pa',label:'Outside Bar'},
-    {id:'m58',cat:'pa',label:'Double Bottom'},{id:'m59',cat:'pa',label:'Double Top'},
-    {id:'m60',cat:'pa',label:'Head & Shoulders'},{id:'m61',cat:'pa',label:'Inv H&S'},
-    {id:'m62',cat:'pa',label:'Wedge'},{id:'m63',cat:'pa',label:'Triangle'},
-    {id:'m64',cat:'pa',label:'Flag'},{id:'m65',cat:'pa',label:'Rejection Wick'},
+    {id:'m60',cat:'pa',label:'Pin Bar'},{id:'m61',cat:'pa',label:'Engulfing'},
+    {id:'m62',cat:'pa',label:'Inside Bar'},{id:'m63',cat:'pa',label:'Outside Bar'},
+    {id:'m64',cat:'pa',label:'Double Bottom'},{id:'m65',cat:'pa',label:'Double Top'},
+    {id:'m66',cat:'pa',label:'Head & Shoulders'},{id:'m67',cat:'pa',label:'Inv H&S'},
+    {id:'m68',cat:'pa',label:'Wedge'},{id:'m69',cat:'pa',label:'Triangle'},
+    {id:'m70',cat:'pa',label:'Flag'},{id:'m71',cat:'pa',label:'Rejection Wick'},
+    {id:'m72',cat:'pa',label:'Hammer'},{id:'m73',cat:'pa',label:'Shooting Star'},
   ],
   ltf: [
     // WYCKOFF
@@ -753,22 +760,24 @@ const DEFAULT_TAGS = {
     {id:'l3',cat:'wyckoff',label:'SOS'},{id:'l4',cat:'wyckoff',label:'SOW'},
     {id:'l5',cat:'wyckoff',label:'LPS'},{id:'l6',cat:'wyckoff',label:'LPSY'},
     {id:'l7',cat:'wyckoff',label:'ST'},{id:'l8',cat:'wyckoff',label:'UA'},
+    {id:'l9',cat:'wyckoff',label:'Back Up'},{id:'l10',cat:'wyckoff',label:'Phase C'},
     // SMC/ICT
-    {id:'l9',cat:'smc',label:'BOS'},{id:'l10',cat:'smc',label:'CHoCH'},
-    {id:'l11',cat:'smc',label:'MSS'},{id:'l12',cat:'smc',label:'FVG Fill'},
-    {id:'l13',cat:'smc',label:'OB Retest'},{id:'l14',cat:'smc',label:'Liquidity Grab'},
-    {id:'l15',cat:'smc',label:'CISD'},
+    {id:'l11',cat:'smc',label:'BOS'},{id:'l12',cat:'smc',label:'CHoCH'},
+    {id:'l13',cat:'smc',label:'MSS'},{id:'l14',cat:'smc',label:'FVG Fill'},
+    {id:'l15',cat:'smc',label:'OB Retest'},{id:'l16',cat:'smc',label:'Liquidity Grab'},
+    {id:'l17',cat:'smc',label:'CISD'},{id:'l18',cat:'smc',label:'Breaker Retest'},
     // PRICE ACTION
-    {id:'l16',cat:'pa',label:'Engulfing'},{id:'l17',cat:'pa',label:'Pin Bar'},
-    {id:'l18',cat:'pa',label:'Rejection Wick'},{id:'l19',cat:'pa',label:'Inside Bar Break'},
-    {id:'l20',cat:'pa',label:'Outside Bar'},{id:'l21',cat:'pa',label:'Hammer'},
-    {id:'l22',cat:'pa',label:'Shooting Star'},
+    {id:'l19',cat:'pa',label:'Engulfing'},{id:'l20',cat:'pa',label:'Pin Bar'},
+    {id:'l21',cat:'pa',label:'Rejection Wick'},{id:'l22',cat:'pa',label:'Inside Bar Break'},
+    {id:'l23',cat:'pa',label:'Outside Bar'},{id:'l24',cat:'pa',label:'Hammer'},
+    {id:'l25',cat:'pa',label:'Shooting Star'},{id:'l26',cat:'pa',label:'Doji'},
     // FIBONACCI
-    {id:'l23',cat:'fibo',label:'0.5'},{id:'l24',cat:'fibo',label:'0.618'},
-    {id:'l25',cat:'fibo',label:'0.786'},{id:'l26',cat:'fibo',label:'OTE'},
+    {id:'l27',cat:'fibo',label:'0.5'},{id:'l28',cat:'fibo',label:'0.618'},
+    {id:'l29',cat:'fibo',label:'0.786'},{id:'l30',cat:'fibo',label:'OTE'},
     // OTHER
-    {id:'l27',cat:'other',label:'Volume Spike'},{id:'l28',cat:'other',label:'Divergence'},
-    {id:'l29',cat:'other',label:'EMA Cross'},{id:'l30',cat:'other',label:'VWAP'},
+    {id:'l31',cat:'other',label:'Volume Spike'},{id:'l32',cat:'other',label:'Divergence'},
+    {id:'l33',cat:'other',label:'EMA Cross'},{id:'l34',cat:'other',label:'VWAP'},
+    {id:'l35',cat:'other',label:'RSI OB'},{id:'l36',cat:'other',label:'RSI OS'},
   ],
   session: [
     {id:'s1',cat:'session',label:'Asian'},
@@ -781,309 +790,6 @@ const DEFAULT_TAGS = {
   ]
 };
 
-function getTagLib(ctx) {
-  const key = 'dnl_tags_' + ctx + '_' + (currentAccount?.id||'');
-  const stored = localStorage.getItem(key);
-  if(stored) return JSON.parse(stored);
-  const def = JSON.parse(JSON.stringify(DEFAULT_TAGS[ctx]||[]));
-  localStorage.setItem(key, JSON.stringify(def));
-  return def;
-}
-function saveTagLib(ctx, tags) {
-  const key = 'dnl_tags_' + ctx + '_' + (currentAccount?.id||'');
-  localStorage.setItem(key, JSON.stringify(tags));
-}
-
-// ── SYMBOL SYSTEM ──
-function getSymbols() {
-  const key = 'dnl_symbols_' + (currentAccount?.id||'');
-  const stored = localStorage.getItem(key);
-  if(stored) return JSON.parse(stored);
-  const def = ['XAUUSD','EURUSD','GBPUSD','US30','NAS100'];
-  localStorage.setItem(key, JSON.stringify(def));
-  return def;
-}
-function saveSymbols(arr) {
-  localStorage.setItem('dnl_symbols_'+(currentAccount?.id||''), JSON.stringify(arr));
-}
-function renderSymbolPool(selected='') {
-  const syms = getSymbols();
-  const pool = document.getElementById('symbol-pool');
-  if(!pool) return;
-  pool.innerHTML = syms.map(s =>
-    `<span class="symbol-pill${s===selected?' active':''}" onclick="selectSymbol('${s}')">${s}</span>`
-  ).join('');
-  document.getElementById('t-symbol').value = selected || (syms[0]||'');
-}
-function selectSymbol(s) {
-  document.querySelectorAll('.symbol-pill').forEach(el => el.classList.toggle('active', el.textContent===s));
-  document.getElementById('t-symbol').value = s;
-}
-function addSymbol() {
-  const inp = document.getElementById('symbol-new-input');
-  const val = inp.value.trim().toUpperCase();
-  if(!val) return;
-  const syms = getSymbols();
-  if(!syms.includes(val)) { syms.push(val); saveSymbols(syms); }
-  inp.value = '';
-  renderSymbolPool(val);
-  selectSymbol(val);
-}
-function removeSymbol() {
-  const active = document.querySelector('.symbol-pill.active');
-  if(!active) return;
-  const val = active.textContent;
-  if(!confirm('ลบ '+val+'?')) return;
-  let syms = getSymbols().filter(s => s !== val);
-  saveSymbols(syms);
-  renderSymbolPool(syms[0]||'');
-}
-
-// ── SESSION TAGS ──
-let selectedSessions = [];
-function renderSessionTags(selected=[]) {
-  selectedSessions = selected;
-  const pool = document.getElementById('session-tag-pool');
-  if(!pool) return;
-  const tags = DEFAULT_TAGS.session;
-  pool.innerHTML = tags.map(t => {
-    const active = selectedSessions.includes(t.id);
-    return `<span class="tag-pill session${active?' active':''}" onclick="toggleSession('${t.id}')">${t.label}</span>`;
-  }).join('');
-}
-function toggleSession(id) {
-  const idx = selectedSessions.indexOf(id);
-  if(idx>=0) selectedSessions.splice(idx,1); else selectedSessions.push(id);
-  renderSessionTags(selectedSessions);
-}
-function getSessionLabels() {
-  return selectedSessions.map(id => DEFAULT_TAGS.session.find(t=>t.id===id)?.label).filter(Boolean);
-}
-
-let selectedTags = { mtf: [], ltf: [] };
-
-// ═══════════════════════════════════════════
-//  INIT
-// ═══════════════════════════════════════════
-async function init() {
-  const { data: { session } } = await sb.auth.getSession();
-  if (session) {
-    currentUser = session.user;
-    showAccPage();
-  } else {
-    showAuthPage();
-  }
-}
-
-function showLoading() { document.getElementById('loading-screen').style.display='flex'; document.getElementById('auth-page').style.display='none'; document.getElementById('acc-page').style.display='none'; document.getElementById('app').style.display='none'; }
-function showAuthPage() { document.getElementById('loading-screen').style.display='none'; document.getElementById('auth-page').style.display='block'; document.getElementById('acc-page').style.display='none'; document.getElementById('app').style.display='none'; }
-function showAccPage() { document.getElementById('loading-screen').style.display='none'; document.getElementById('auth-page').style.display='none'; document.getElementById('acc-page').style.display='flex'; document.getElementById('app').style.display='none'; loadAccounts(); }
-function showApp() { document.getElementById('loading-screen').style.display='none'; document.getElementById('auth-page').style.display='none'; document.getElementById('acc-page').style.display='none'; document.getElementById('app').style.display='block'; loadAllData(); }
-
-// ═══════════════════════════════════════════
-//  AUTH
-// ═══════════════════════════════════════════
-let authMode = 'login';
-function switchAuthTab(mode) {
-  authMode = mode;
-  document.querySelectorAll('.auth-tab').forEach((t,i)=>t.classList.toggle('active', (i===0&&mode==='login')||(i===1&&mode==='register')));
-  document.getElementById('auth-btn').textContent = mode==='login'?'Login':'Register';
-  document.getElementById('auth-err').textContent='';
-}
-async function doAuth() {
-  const email = document.getElementById('auth-email').value.trim();
-  const pass = document.getElementById('auth-pass').value;
-  const btn = document.getElementById('auth-btn');
-  if(!email||!pass){document.getElementById('auth-err').textContent='กรอก email และ password';return;}
-  btn.disabled=true; btn.textContent='กำลังโหลด...';
-  let err;
-  if(authMode==='login'){
-    const r = await sb.auth.signInWithPassword({email,password:pass});
-    err = r.error; if(!err){currentUser=r.data.user; showAccPage();}
-  } else {
-    const r = await sb.auth.signUp({email,password:pass});
-    err = r.error; if(!err){currentUser=r.data.user; if(currentUser){showAccPage();}else{document.getElementById('auth-err').textContent='ลงทะเบียนแล้ว! กรุณา Login';switchAuthTab('login');}}
-  }
-  if(err){document.getElementById('auth-err').textContent=err.message;}
-  btn.disabled=false; btn.textContent=authMode==='login'?'Login':'Register';
-}
-async function doLogout() {
-  await sb.auth.signOut();
-  currentUser=null; currentAccount=null; trades=[]; playbooks=[];
-  showAuthPage();
-}
-
-// ═══════════════════════════════════════════
-//  ACCOUNTS
-// ═══════════════════════════════════════════
-async function loadAccounts() {
-  document.getElementById('acc-user-label').textContent = currentUser?.email||'';
-  const { data, error } = await sb.from('accounts').select('*').eq('user_id', currentUser.id).order('created_at');
-  if(error){showToast('Error loading accounts','error');return;}
-  renderAccList(data||[]);
-}
-function renderAccList(accounts) {
-  const list = document.getElementById('acc-list');
-  if(!accounts.length){list.innerHTML='<div style="color:var(--dim);font-size:12px;text-align:center;padding:20px;">ยังไม่มี Account — สร้างด้านล่างได้เลย</div>';return;}
-  list.innerHTML = accounts.map(a=>`
-    <div class="acc-item" onclick="selectAccount('${a.id}','${a.name.replace(/'/g,"\'")}')">
-      <div><div class="acc-item-name">${a.name}</div><div class="acc-item-meta">${a.created_at?.split('T')[0]||''}</div></div>
-      <button class="acc-item-del" onclick="event.stopPropagation();deleteAccount('${a.id}')">🗑</button>
-    </div>`).join('');
-}
-async function createAccount() {
-  const name = document.getElementById('acc-new-name').value.trim();
-  if(!name){showToast('ใส่ชื่อก่อน','error');return;}
-  const {data,error} = await sb.from('accounts').insert({user_id:currentUser.id,name}).select().single();
-  if(error){showToast('Error: '+error.message,'error');return;}
-  document.getElementById('acc-new-name').value='';
-  showToast('✅ สร้าง Account แล้ว');
-  loadAccounts();
-}
-async function deleteAccount(id) {
-  if(!confirm('ลบ Account นี้? ข้อมูล Trade ทั้งหมดจะหายไป'))return;
-  await sb.from('trades').delete().eq('account_id',id);
-  await sb.from('playbooks').delete().eq('account_id',id);
-  await sb.from('accounts').delete().eq('id',id);
-  showToast('🗑 ลบแล้ว','error');
-  loadAccounts();
-}
-function selectAccount(id,name) {
-  currentAccount = {id,name};
-  document.getElementById('sb-acc-name').textContent=name;
-  showApp();
-}
-function goAccPage() { currentAccount=null; showAccPage(); }
-
-// ═══════════════════════════════════════════
-//  NAVIGATION
-// ═══════════════════════════════════════════
-function showPage(id) {
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
-  document.getElementById('page-'+id).classList.add('active');
-  document.getElementById('nav-'+id).classList.add('active');
-  const t={dashboard:'Dashboard',tradelog:'Trade Log',analytics:'Analytics',playbook:'Playbook'};
-  document.getElementById('page-title-txt').textContent=t[id]||id;
-  if(id==='dashboard')renderDashboard();
-  if(id==='tradelog'){updateFilterOptions();applyFilters();}
-  if(id==='analytics'){updateFilterOptions();renderAnalytics();}
-  if(id==='playbook')renderPlaybook();
-}
-
-// ═══════════════════════════════════════════
-//  LOAD DATA
-// ═══════════════════════════════════════════
-async function loadAllData() {
-  if(!currentAccount)return;
-  const [t,p] = await Promise.all([
-    sb.from('trades').select('*').eq('account_id',currentAccount.id).order('created_at',{ascending:false}),
-    sb.from('playbooks').select('*').eq('account_id',currentAccount.id).order('created_at')
-  ]);
-  trades = t.data||[];
-  playbooks = p.data||[];
-  renderDashboard();
-  updateFilterOptions();
-}
-
-// ═══════════════════════════════════════════
-//  HELPERS
-// ═══════════════════════════════════════════
-function fmtR(r){if(r===null||r===undefined)return'—';const n=parseFloat(r);return(n>=0?'+':'')+n.toFixed(2)+'R';}
-function fmtPnl(v){if(v===null||v===undefined)return'—';const n=parseFloat(v);return(n>=0?'+$':'-$')+Math.abs(n).toFixed(2);}
-function sessionClass(s){if(!s)return's-other';if(s.includes('Asian'))return's-asian';if(s.includes('London'))return's-london';if(s.includes('New York'))return's-ny';return's-other';}
-function rClass(r){const n=parseFloat(r);if(isNaN(n))return'r-zero';return n>0?'r-pos':n<0?'r-neg':'r-zero';}
-function catClass(c){return{SMC:'cat-smc',Wyckoff:'cat-wyckoff',PA:'cat-pa',Dow:'cat-dow'}[c]||'cat-other';}
-function catLabel(c){return{SMC:'⚡ SMC/ICT',Wyckoff:'📊 Wyckoff',PA:'📈 PA',Dow:'📉 Dow',Other:'🎯 Other'}[c]||c;}
-function gradeClass(g){return{A:'grade-A',B:'grade-B',C:'grade-C'}[g]||'grade-B';}
-function showToast(msg,type='success'){const el=document.getElementById('toast');el.textContent=msg;el.className='toast '+type+' show';setTimeout(()=>el.classList.remove('show'),2500);}
-
-// ═══════════════════════════════════════════
-//  PRICE CALCULATOR
-// ═══════════════════════════════════════════
-function calcPrice() {
-  const entry=parseFloat(document.getElementById('t-entry').value);
-  const sl=parseFloat(document.getElementById('t-sl').value);
-  const tp=parseFloat(document.getElementById('t-tp').value);
-  const lot=parseFloat(document.getElementById('t-lot').value)||0.01;
-  const pipVal=10;
-  if(isNaN(entry)||isNaN(sl)||sl===entry){
-    ['calc-rr','calc-rmul','calc-profit','calc-loss','calc-pnl'].forEach(id=>document.getElementById(id).textContent='—');
-    return;
-  }
-  const riskPips=Math.abs(entry-sl);
-  const riskDollar=riskPips*pipVal*lot;
-  let rr='—',rmul='—',profit='—',loss='-$'+riskDollar.toFixed(2),pnl='—';
-  if(!isNaN(tp)&&tp!==entry){
-    const rewardPips=Math.abs(tp-entry);
-    const rewardDollar=rewardPips*pipVal*lot;
-    rr='1:'+(rewardPips/riskPips).toFixed(2);
-    rmul='+'+(rewardPips/riskPips).toFixed(2)+'R';
-    profit='+$'+rewardDollar.toFixed(2);
-    if(currentResult==='win')pnl=profit;
-    else if(currentResult==='loss')pnl=loss;
-    else pnl='$0 (BE)';
-  }
-  document.getElementById('calc-rr').textContent=rr;
-  document.getElementById('calc-rmul').textContent=rmul;
-  document.getElementById('calc-profit').textContent=profit;
-  document.getElementById('calc-loss').textContent=loss;
-  document.getElementById('calc-pnl').textContent=currentResult==='win'?profit:currentResult==='loss'?loss:'$0 (BE)';
-}
-
-function getRMultiple() {
-  const entry=parseFloat(document.getElementById('t-entry').value);
-  const sl=parseFloat(document.getElementById('t-sl').value);
-  const tp=parseFloat(document.getElementById('t-tp').value);
-  if(isNaN(entry)||isNaN(sl)||isNaN(tp)||sl===entry)return null;
-  const riskPips=Math.abs(entry-sl);
-  const rewardPips=Math.abs(tp-entry);
-  const rr=rewardPips/riskPips;
-  if(currentResult==='win')return rr;
-  if(currentResult==='loss')return -1;
-  return 0;
-}
-function getPnlDollar() {
-  const entry=parseFloat(document.getElementById('t-entry').value);
-  const sl=parseFloat(document.getElementById('t-sl').value);
-  const tp=parseFloat(document.getElementById('t-tp').value);
-  const lot=parseFloat(document.getElementById('t-lot').value)||0.01;
-  const pipVal=10;
-  if(isNaN(entry)||isNaN(sl)||sl===entry)return null;
-  const riskPips=Math.abs(entry-sl);
-  const riskDollar=riskPips*pipVal*lot;
-  if(currentResult==='win'){if(isNaN(tp)||tp===entry)return null;const rewardPips=Math.abs(tp-entry);return rewardPips*pipVal*lot;}
-  if(currentResult==='loss')return -riskDollar;
-  return 0;
-}
-
-// ═══════════════════════════════════════════
-//  DIRECTION / RESULT / GRADE TOGGLES
-// ═══════════════════════════════════════════
-function setDir(d){
-  currentDir=d;
-  document.getElementById('dir-long').classList.toggle('active',d==='Long');
-  document.getElementById('dir-long').classList.toggle('win',d==='Long');
-  document.getElementById('dir-short').classList.toggle('active',d==='Short');
-  document.getElementById('dir-short').classList.toggle('loss',d==='Short');
-}
-function setResult(r){
-  currentResult=r;
-  ['win','loss','be'].forEach(x=>{const el=document.getElementById('res-'+x);el.classList.toggle('active',x===r);});
-  calcPrice();
-}
-function setGrade(g){
-  currentGrade=g;
-  ['A','B','C'].forEach(x=>{
-    const el=document.getElementById('grade-'+x);
-    el.classList.remove('active','win','loss','be');
-    if(x===g){el.classList.add('active');el.classList.add(x==='A'?'win':x==='C'?'loss':'be');}
-  });
-}
-
-// ═══════════════════════════════════════════
-//  TAG SYSTEM
-// ═══════════════════════════════════════════
 const CAT_COLORS = {
   wyckoff:'#a78bfa', smc:'#4d8eff', poi:'#fb923c',
   pa:'#2dce78', fibo:'#f5c842', other:'#6b7591', session:'#2dce78'
@@ -1119,6 +825,24 @@ function toggleTag(ctx,id,col){
   const idx=arr.indexOf(id);
   if(idx>=0)arr.splice(idx,1); else arr.push(id);
   renderTagContainer(ctx, ctx+'-tags-container');
+  if(ctx==='mtf') updateSetupPreview();
+}
+function updateSetupPreview(){
+  const preview = document.getElementById('mtf-setup-preview');
+  if(!preview) return;
+  const tags = getTagLib('mtf');
+  const labels = selectedTags.mtf.map(id=>tags.find(t=>t.id===id)?.label).filter(Boolean);
+  const tfVal = document.getElementById('mtf-tf')?.value||'';
+  const sessions = getSessionLabels();
+  let parts = [];
+  if(tfVal) parts.push(tfVal);
+  if(labels.length) parts.push(labels.join(' + '));
+  if(sessions.length) parts.push(sessions.join('/'));
+  const name = parts.join(' · ') || '—';
+  preview.textContent = name;
+  preview.style.color = labels.length ? 'var(--text)' : 'var(--dim)';
+  // auto-save to hidden input
+  document.getElementById('mtf-setup-name').value = name==='—'?'':name;
 }
 function getSelectedTagLabels(ctx){
   const tags=getTagLib(ctx);
