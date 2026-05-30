@@ -1166,20 +1166,24 @@ function getPresets() {
 function savePresets(arr) {
   localStorage.setItem('dnl_presets_'+(currentAccount?.id||''), JSON.stringify(arr));
 }
-function renderPresetPool(activePreset='') {
+function renderPresetPool(activePreset) {
   const pool = document.getElementById('preset-pool');
   if(!pool) return;
   const presets = getPresets();
   if(!presets.length) {
-    pool.innerHTML = '<span style="font-size:10px;color:var(--dim);font-family:'DM Mono',monospace;">ยังไม่มี Preset — พิมพ์ชื่อแล้วกด ＋ Preset</span>';
+    pool.innerHTML = '<span style="font-size:10px;color:var(--dim);">ยังไม่มี Preset</span>';
     return;
   }
-  pool.innerHTML = presets.map(p =>
-    `<span class="preset-pill${p===activePreset?' active':''}" onclick="selectPreset('${p.replace(/'/g,'\\'')}')">${p}
-      <span class="del" onclick="event.stopPropagation();deletePreset('${p.replace(/'/g,'\\'')}')" title="ลบ">✕</span>
-    </span>`
-  ).join('');
+  let html = '';
+  presets.forEach(function(p) {
+    const active = (p === activePreset) ? ' active' : '';
+    const safeP = encodeURIComponent(p);
+    html += '<span class="preset-pill' + active + '" onclick="selectPreset(decodeURIComponent(' + JSON.stringify(safeP) + '))">' + p +
+            ' <span class="del" onclick="event.stopPropagation();deletePreset(decodeURIComponent(' + JSON.stringify(safeP) + '))" title="ลบ">✕</span></span>';
+  });
+  pool.innerHTML = html;
 }
+
 function selectPreset(name) {
   document.getElementById('mtf-setup-name').value = name;
   renderPresetPool(name);
