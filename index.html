@@ -245,6 +245,13 @@ textarea{resize:vertical;min-height:70px;}
 .screenshot-box .ss-label{font-size:10px;color:var(--gold);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;}
 .ss-url-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;}
 
+/* PRESET PILLS */
+.preset-pill{padding:4px 11px;border-radius:6px;font-size:11px;font-family:'DM Mono',monospace;cursor:pointer;border:1.5px solid var(--line);background:transparent;color:var(--muted);transition:all .15s;display:inline-flex;align-items:center;gap:5px;}
+.preset-pill:hover{border-color:var(--gold);color:var(--gold);}
+.preset-pill.active{background:rgba(245,200,66,.15);border-color:var(--gold);color:var(--gold);}
+.preset-pill .del{color:var(--dim);font-size:10px;margin-left:2px;}
+.preset-pill .del:hover{color:var(--red);}
+
 /* SYMBOL TOGGLE */
 .symbol-pool{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;}
 .symbol-pill{padding:5px 12px;border-radius:6px;font-size:12px;font-family:'DM Mono',monospace;font-weight:700;cursor:pointer;border:1.5px solid var(--line);background:transparent;color:var(--muted);transition:all .15s;user-select:none;letter-spacing:.5px;}
@@ -510,10 +517,14 @@ textarea{resize:vertical;min-height:70px;}
         <span class="tf-block-badge tf-mtf">MTF</span>
         <span style="font-size:11px;color:var(--muted);">Middle Time Frame — Setup</span>
       </div>
-      <!-- MTF Setup Name — auto from tags -->
-      <div style="margin-bottom:10px;">
-        <label style="display:block;margin-bottom:5px;">Setup Name <span style="color:var(--dim);font-size:9px;">(auto จาก Tags)</span></label>
-        <input type="hidden" id="mtf-setup-name"><div id="mtf-setup-preview" style="min-height:34px;background:var(--ink3);border:1px solid var(--line);border-radius:var(--radius-sm);padding:7px 12px;font-size:11px;font-family:'DM Mono',monospace;color:var(--muted);line-height:1.5;">—</div>
+      <!-- MTF Setup Name — Preset -->
+      <div style="margin-bottom:12px;">
+        <label style="display:block;margin-bottom:6px;">Setup Name <span style="color:var(--dim);font-size:9px;">(เลือก Preset หรือพิมพ์เอง)</span></label>
+        <div id="preset-pool" style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px;min-height:16px;"></div>
+        <div style="display:flex;gap:6px;">
+          <input type="text" id="mtf-setup-name" placeholder="ชื่อ Setup เช่น Spring OB Retest..." style="flex:1;">
+          <button class="btn btn-ghost btn-sm" onclick="savePreset()">＋ Preset</button>
+        </div>
       </div>
       <div class="tf-select-row" style="margin-bottom:10px;">
         <select id="mtf-tf" style="width:auto;" onchange="updateSetupPreview()">
@@ -1145,6 +1156,48 @@ function toggleTag(ctx,id,col){
   if(ctx==='mtf') updateSetupPreview();
 }
 
+
+// ── PRESET SYSTEM ──
+function getPresets() {
+  const key = 'dnl_presets_' + (currentAccount?.id||'');
+  return JSON.parse(localStorage.getItem(key)||'[]');
+}
+function savePresets(arr) {
+  localStorage.setItem('dnl_presets_'+(currentAccount?.id||''), JSON.stringify(arr));
+}
+function renderPresetPool(activePreset='') {
+  const pool = document.getElementById('preset-pool');
+  if(!pool) return;
+  const presets = getPresets();
+  if(!presets.length) {
+    pool.innerHTML = '<span style="font-size:10px;color:var(--dim);font-family:'DM Mono',monospace;">ยังไม่มี Preset — พิมพ์ชื่อแล้วกด ＋ Preset</span>';
+    return;
+  }
+  pool.innerHTML = presets.map(p =>
+    `<span class="preset-pill${p===activePreset?' active':''}" onclick="selectPreset('${p.replace(/'/g,'\\'')}')">${p}
+      <span class="del" onclick="event.stopPropagation();deletePreset('${p.replace(/'/g,'\\'')}')" title="ลบ">✕</span>
+    </span>`
+  ).join('');
+}
+function selectPreset(name) {
+  document.getElementById('mtf-setup-name').value = name;
+  renderPresetPool(name);
+}
+function savePreset() {
+  const name = document.getElementById('mtf-setup-name').value.trim();
+  if(!name) { showToast('พิมพ์ชื่อก่อนบันทึก Preset', 'error'); return; }
+  const presets = getPresets();
+  if(!presets.includes(name)) { presets.push(name); savePresets(presets); }
+  renderPresetPool(name);
+  showToast('✅ บันทึก Preset แล้ว');
+}
+function deletePreset(name) {
+  const presets = getPresets().filter(p => p !== name);
+  savePresets(presets);
+  renderPresetPool();
+  showToast('🗑 ลบ Preset แล้ว', 'error');
+}
+
 // ── SYMBOL SYSTEM ──
 function getSymbols() {
   const key = 'dnl_symbols_' + (currentAccount?.id||'');
@@ -1216,23 +1269,7 @@ function getSessionLabels() {
   return selectedSessions.map(id => DEFAULT_TAGS.session.find(t=>t.id===id)?.label).filter(Boolean);
 }
 
-function updateSetupPreview(){
-  const preview = document.getElementById('mtf-setup-preview');
-  if(!preview) return;
-  const tags = getTagLib('mtf');
-  const labels = selectedTags.mtf.map(id=>tags.find(t=>t.id===id)?.label).filter(Boolean);
-  const tfVal = document.getElementById('mtf-tf')?.value||'';
-  const sessions = getSessionLabels();
-  let parts = [];
-  if(tfVal) parts.push(tfVal);
-  if(labels.length) parts.push(labels.join(' + '));
-  if(sessions.length) parts.push(sessions.join('/'));
-  const name = parts.join(' · ') || '—';
-  preview.textContent = name;
-  preview.style.color = labels.length ? 'var(--text)' : 'var(--dim)';
-  // auto-save to hidden input
-  document.getElementById('mtf-setup-name').value = name==='—'?'':name;
-}
+function updateSetupPreview(){ /* using preset system now */ }
 function getSelectedTagLabels(ctx){
   const tags=getTagLib(ctx);
   return selectedTags[ctx].map(id=>tags.find(t=>t.id===id)?.label).filter(Boolean);
@@ -1302,6 +1339,7 @@ function openTradeModal(id=null){
   renderSymbolPool(t?.symbol||getSymbols()[0]||'');
   if(t?.symbol) selectSymbol(t.symbol);
   document.getElementById('mtf-setup-name').value=t?.mtf_setup_name||'';
+  renderPresetPool(t?.mtf_setup_name||'');
   document.getElementById('htf-tf').value=t?.htf_tf||'';
   document.getElementById('htf-trend').value=t?.htf_trend||'';
   document.getElementById('mtf-tf').value=t?.mtf_tf||'';
