@@ -220,6 +220,7 @@ textarea{resize:vertical;min-height:70px;}
 .tag-pill.active.fibo{background:rgba(245,200,66,.2);border-color:var(--gold);color:var(--gold);}
 .tag-pill.active.poi{background:rgba(251,146,60,.2);border-color:var(--orange);color:var(--orange);}
 .tag-pill.active.other{background:rgba(107,117,145,.2);border-color:var(--muted);color:var(--text);}
+.tag-pill.active.session{background:rgba(45,206,120,.2);border-color:var(--green);color:var(--green);}
 .tag-add-row{display:flex;gap:6px;align-items:center;margin-top:6px;}
 .tag-add-row input{flex:1;font-size:11px;padding:5px 10px;}
 .tag-add-row select{width:auto;font-size:11px;padding:5px 8px;}
@@ -243,6 +244,14 @@ textarea{resize:vertical;min-height:70px;}
 .screenshot-box .ph-icon{font-size:24px;display:block;margin-bottom:4px;}
 .screenshot-box .ss-label{font-size:10px;color:var(--gold);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;}
 .ss-url-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;}
+
+/* SYMBOL TOGGLE */
+.symbol-pool{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;}
+.symbol-pill{padding:5px 12px;border-radius:6px;font-size:12px;font-family:'DM Mono',monospace;font-weight:700;cursor:pointer;border:1.5px solid var(--line);background:transparent;color:var(--muted);transition:all .15s;user-select:none;letter-spacing:.5px;}
+.symbol-pill:hover{border-color:var(--dim);color:var(--text);}
+.symbol-pill.active{background:rgba(245,200,66,.15);border-color:var(--gold);color:var(--gold);}
+.symbol-add-row{display:flex;gap:6px;margin-bottom:14px;}
+.symbol-add-row input{flex:1;font-size:12px;padding:6px 10px;font-family:'DM Mono',monospace;text-transform:uppercase;}
 
 /* RESULT TOGGLE */
 .result-toggle{display:flex;gap:6px;margin-bottom:14px;}
@@ -459,8 +468,18 @@ textarea{resize:vertical;min-height:70px;}
 
     <!-- 1. BASIC INFO -->
     <div class="form-section-title">1 · Basic Info</div>
+    <!-- SYMBOL TOGGLE -->
+    <div style="margin-bottom:14px;">
+      <label style="display:block;margin-bottom:8px;">Symbol</label>
+      <div class="symbol-pool" id="symbol-pool"></div>
+      <div class="symbol-add-row">
+        <input type="text" id="symbol-new-input" placeholder="เพิ่ม Symbol เช่น XAUUSD" maxlength="12">
+        <button class="btn btn-ghost btn-sm" onclick="addSymbol()">＋</button>
+        <button class="btn btn-ghost btn-sm" style="color:var(--red);" onclick="removeSymbol()">－</button>
+      </div>
+    </div>
     <div class="form-grid">
-      <div class="fg"><label>Symbol</label><input type="text" id="t-symbol" placeholder="XAUUSD, EURUSD..."></div>
+      <div class="fg" style="display:none;"><label>Symbol</label><input type="text" id="t-symbol" placeholder="XAUUSD"></div>
       <div class="fg"><label>Direction</label>
         <div style="display:flex;gap:6px;margin-top:2px;">
           <button class="result-btn" id="dir-long" onclick="setDir('Long')">↑ Long</button>
@@ -491,13 +510,20 @@ textarea{resize:vertical;min-height:70px;}
         <span class="tf-block-badge tf-mtf">MTF</span>
         <span style="font-size:11px;color:var(--muted);">Middle Time Frame — Setup</span>
       </div>
+      <!-- MTF Setup Name -->
+      <div class="fg" style="margin-bottom:10px;">
+        <label>Setup Name (optional)</label>
+        <input type="text" id="mtf-setup-name" placeholder="เช่น Wyckoff Spring + OB Retest...">
+      </div>
       <div class="tf-select-row" style="margin-bottom:10px;">
         <select id="mtf-tf" style="width:auto;">
           <option value="">TF</option><option>H4</option><option>H1</option><option>M30</option><option>M15</option><option>M5</option>
         </select>
-        <select id="mtf-session" style="width:auto;">
-          <option value="">Session</option><option>Asian</option><option>London</option><option>New York</option><option>Other</option>
-        </select>
+      </div>
+      <!-- Session Tags -->
+      <div style="margin-bottom:10px;">
+        <div class="tag-section-title">Session</div>
+        <div class="tag-pool" id="session-tag-pool"></div>
       </div>
       <div id="mtf-tags-container"></div>
     </div>
@@ -681,19 +707,77 @@ const PER_PAGE = 15;
 // DEFAULT TAG LIBRARY
 const DEFAULT_TAGS = {
   mtf: [
-    {id:'m1',cat:'wyckoff',label:'Spring'},{id:'m2',cat:'wyckoff',label:'Upthrust'},{id:'m3',cat:'wyckoff',label:'Phase C'},{id:'m4',cat:'wyckoff',label:'Phase D'},
-    {id:'m5',cat:'wyckoff',label:'Accumulation'},{id:'m6',cat:'wyckoff',label:'Distribution'},
-    {id:'m7',cat:'smc',label:'BOS'},{id:'m8',cat:'smc',label:'CHoCH'},{id:'m9',cat:'smc',label:'Order Block'},{id:'m10',cat:'smc',label:'FVG'},{id:'m11',cat:'smc',label:'Liquidity Sweep'},
-    {id:'m12',cat:'poi',label:'Demand Zone'},{id:'m13',cat:'poi',label:'Supply Zone'},{id:'m14',cat:'poi',label:'SRF'},{id:'m15',cat:'poi',label:'OB'},{id:'m16',cat:'poi',label:'Breaker Block'},
-    {id:'m17',cat:'fibo',label:'0.382'},{id:'m18',cat:'fibo',label:'0.5'},{id:'m19',cat:'fibo',label:'0.618'},{id:'m20',cat:'fibo',label:'0.786'},{id:'m21',cat:'fibo',label:'OTE'},
-    {id:'m22',cat:'pa',label:'Pin Bar'},{id:'m23',cat:'pa',label:'Engulfing'},{id:'m24',cat:'pa',label:'Inside Bar'},{id:'m25',cat:'pa',label:'Double Bottom'},{id:'m26',cat:'pa',label:'Double Top'},
+    // WYCKOFF
+    {id:'m1',cat:'wyckoff',label:'PS'},{id:'m2',cat:'wyckoff',label:'SC'},
+    {id:'m3',cat:'wyckoff',label:'AR'},{id:'m4',cat:'wyckoff',label:'ST'},
+    {id:'m5',cat:'wyckoff',label:'Spring'},{id:'m6',cat:'wyckoff',label:'UA'},
+    {id:'m7',cat:'wyckoff',label:'STB'},{id:'m8',cat:'wyckoff',label:'SOS'},
+    {id:'m9',cat:'wyckoff',label:'LPS'},{id:'m10',cat:'wyckoff',label:'SOW'},
+    {id:'m11',cat:'wyckoff',label:'Upthrust'},{id:'m12',cat:'wyckoff',label:'LPSY'},
+    {id:'m13',cat:'wyckoff',label:'Phase A'},{id:'m14',cat:'wyckoff',label:'Phase B'},
+    {id:'m15',cat:'wyckoff',label:'Phase C'},{id:'m16',cat:'wyckoff',label:'Phase D'},
+    {id:'m17',cat:'wyckoff',label:'Phase E'},{id:'m18',cat:'wyckoff',label:'Accumulation'},
+    {id:'m19',cat:'wyckoff',label:'Distribution'},{id:'m20',cat:'wyckoff',label:'Re-Accumulation'},
+    {id:'m21',cat:'wyckoff',label:'Re-Distribution'},
+    // SMC/ICT
+    {id:'m22',cat:'smc',label:'BOS'},{id:'m23',cat:'smc',label:'CHoCH'},
+    {id:'m24',cat:'smc',label:'MSS'},{id:'m25',cat:'smc',label:'Order Block'},
+    {id:'m26',cat:'smc',label:'Breaker Block'},{id:'m27',cat:'smc',label:'FVG'},
+    {id:'m28',cat:'smc',label:'Imbalance'},{id:'m29',cat:'smc',label:'Liquidity Sweep'},
+    {id:'m30',cat:'smc',label:'SSL'},{id:'m31',cat:'smc',label:'BSL'},
+    {id:'m32',cat:'smc',label:'CISD'},{id:'m33',cat:'smc',label:'Optimal Trade Entry'},
+    {id:'m34',cat:'smc',label:'Judas Swing'},{id:'m35',cat:'smc',label:'Power of 3'},
+    // POI
+    {id:'m36',cat:'poi',label:'Demand Zone'},{id:'m37',cat:'poi',label:'Supply Zone'},
+    {id:'m38',cat:'poi',label:'SRF'},{id:'m39',cat:'poi',label:'OB'},
+    {id:'m40',cat:'poi',label:'Breaker'},{id:'m41',cat:'poi',label:'Mitigation'},
+    {id:'m42',cat:'poi',label:'Gap Fill'},{id:'m43',cat:'poi',label:'Previous High'},
+    {id:'m44',cat:'poi',label:'Previous Low'},
+    // FIBONACCI
+    {id:'m45',cat:'fibo',label:'0.236'},{id:'m46',cat:'fibo',label:'0.382'},
+    {id:'m47',cat:'fibo',label:'0.5'},{id:'m48',cat:'fibo',label:'0.618'},
+    {id:'m49',cat:'fibo',label:'0.705'},{id:'m50',cat:'fibo',label:'0.786'},
+    {id:'m51',cat:'fibo',label:'OTE'},{id:'m52',cat:'fibo',label:'1.272'},
+    {id:'m53',cat:'fibo',label:'1.618'},
+    // PRICE ACTION
+    {id:'m54',cat:'pa',label:'Pin Bar'},{id:'m55',cat:'pa',label:'Engulfing'},
+    {id:'m56',cat:'pa',label:'Inside Bar'},{id:'m57',cat:'pa',label:'Outside Bar'},
+    {id:'m58',cat:'pa',label:'Double Bottom'},{id:'m59',cat:'pa',label:'Double Top'},
+    {id:'m60',cat:'pa',label:'Head & Shoulders'},{id:'m61',cat:'pa',label:'Inv H&S'},
+    {id:'m62',cat:'pa',label:'Wedge'},{id:'m63',cat:'pa',label:'Triangle'},
+    {id:'m64',cat:'pa',label:'Flag'},{id:'m65',cat:'pa',label:'Rejection Wick'},
   ],
   ltf: [
-    {id:'l1',cat:'wyckoff',label:'Spring'},{id:'l2',cat:'wyckoff',label:'Upthrust'},{id:'l3',cat:'wyckoff',label:'SOS'},{id:'l4',cat:'wyckoff',label:'SOW'},
-    {id:'l5',cat:'smc',label:'BOS'},{id:'l6',cat:'smc',label:'CHoCH'},{id:'l7',cat:'smc',label:'MSS'},{id:'l8',cat:'smc',label:'FVG Fill'},
-    {id:'l9',cat:'pa',label:'Engulfing'},{id:'l10',cat:'pa',label:'Pin Bar'},{id:'l11',cat:'pa',label:'Rejection Wick'},{id:'l12',cat:'pa',label:'Inside Bar Break'},
-    {id:'l13',cat:'fibo',label:'0.5'},{id:'l14',cat:'fibo',label:'0.618'},{id:'l15',cat:'fibo',label:'0.786'},
-    {id:'l16',cat:'other',label:'Volume Spike'},{id:'l17',cat:'other',label:'Divergence'},{id:'l18',cat:'other',label:'EMA Cross'},
+    // WYCKOFF
+    {id:'l1',cat:'wyckoff',label:'Spring'},{id:'l2',cat:'wyckoff',label:'Upthrust'},
+    {id:'l3',cat:'wyckoff',label:'SOS'},{id:'l4',cat:'wyckoff',label:'SOW'},
+    {id:'l5',cat:'wyckoff',label:'LPS'},{id:'l6',cat:'wyckoff',label:'LPSY'},
+    {id:'l7',cat:'wyckoff',label:'ST'},{id:'l8',cat:'wyckoff',label:'UA'},
+    // SMC/ICT
+    {id:'l9',cat:'smc',label:'BOS'},{id:'l10',cat:'smc',label:'CHoCH'},
+    {id:'l11',cat:'smc',label:'MSS'},{id:'l12',cat:'smc',label:'FVG Fill'},
+    {id:'l13',cat:'smc',label:'OB Retest'},{id:'l14',cat:'smc',label:'Liquidity Grab'},
+    {id:'l15',cat:'smc',label:'CISD'},
+    // PRICE ACTION
+    {id:'l16',cat:'pa',label:'Engulfing'},{id:'l17',cat:'pa',label:'Pin Bar'},
+    {id:'l18',cat:'pa',label:'Rejection Wick'},{id:'l19',cat:'pa',label:'Inside Bar Break'},
+    {id:'l20',cat:'pa',label:'Outside Bar'},{id:'l21',cat:'pa',label:'Hammer'},
+    {id:'l22',cat:'pa',label:'Shooting Star'},
+    // FIBONACCI
+    {id:'l23',cat:'fibo',label:'0.5'},{id:'l24',cat:'fibo',label:'0.618'},
+    {id:'l25',cat:'fibo',label:'0.786'},{id:'l26',cat:'fibo',label:'OTE'},
+    // OTHER
+    {id:'l27',cat:'other',label:'Volume Spike'},{id:'l28',cat:'other',label:'Divergence'},
+    {id:'l29',cat:'other',label:'EMA Cross'},{id:'l30',cat:'other',label:'VWAP'},
+  ],
+  session: [
+    {id:'s1',cat:'session',label:'Asian'},
+    {id:'s2',cat:'session',label:'London'},
+    {id:'s3',cat:'session',label:'New York'},
+    {id:'s4',cat:'session',label:'London Close'},
+    {id:'s5',cat:'session',label:'News'},
+    {id:'s6',cat:'session',label:'Pre-Market'},
+    {id:'s7',cat:'session',label:'After Hours'},
   ]
 };
 
@@ -701,13 +785,79 @@ function getTagLib(ctx) {
   const key = 'dnl_tags_' + ctx + '_' + (currentAccount?.id||'');
   const stored = localStorage.getItem(key);
   if(stored) return JSON.parse(stored);
-  const def = JSON.parse(JSON.stringify(DEFAULT_TAGS[ctx]));
+  const def = JSON.parse(JSON.stringify(DEFAULT_TAGS[ctx]||[]));
   localStorage.setItem(key, JSON.stringify(def));
   return def;
 }
 function saveTagLib(ctx, tags) {
   const key = 'dnl_tags_' + ctx + '_' + (currentAccount?.id||'');
   localStorage.setItem(key, JSON.stringify(tags));
+}
+
+// ── SYMBOL SYSTEM ──
+function getSymbols() {
+  const key = 'dnl_symbols_' + (currentAccount?.id||'');
+  const stored = localStorage.getItem(key);
+  if(stored) return JSON.parse(stored);
+  const def = ['XAUUSD','EURUSD','GBPUSD','US30','NAS100'];
+  localStorage.setItem(key, JSON.stringify(def));
+  return def;
+}
+function saveSymbols(arr) {
+  localStorage.setItem('dnl_symbols_'+(currentAccount?.id||''), JSON.stringify(arr));
+}
+function renderSymbolPool(selected='') {
+  const syms = getSymbols();
+  const pool = document.getElementById('symbol-pool');
+  if(!pool) return;
+  pool.innerHTML = syms.map(s =>
+    `<span class="symbol-pill${s===selected?' active':''}" onclick="selectSymbol('${s}')">${s}</span>`
+  ).join('');
+  document.getElementById('t-symbol').value = selected || (syms[0]||'');
+}
+function selectSymbol(s) {
+  document.querySelectorAll('.symbol-pill').forEach(el => el.classList.toggle('active', el.textContent===s));
+  document.getElementById('t-symbol').value = s;
+}
+function addSymbol() {
+  const inp = document.getElementById('symbol-new-input');
+  const val = inp.value.trim().toUpperCase();
+  if(!val) return;
+  const syms = getSymbols();
+  if(!syms.includes(val)) { syms.push(val); saveSymbols(syms); }
+  inp.value = '';
+  renderSymbolPool(val);
+  selectSymbol(val);
+}
+function removeSymbol() {
+  const active = document.querySelector('.symbol-pill.active');
+  if(!active) return;
+  const val = active.textContent;
+  if(!confirm('ลบ '+val+'?')) return;
+  let syms = getSymbols().filter(s => s !== val);
+  saveSymbols(syms);
+  renderSymbolPool(syms[0]||'');
+}
+
+// ── SESSION TAGS ──
+let selectedSessions = [];
+function renderSessionTags(selected=[]) {
+  selectedSessions = selected;
+  const pool = document.getElementById('session-tag-pool');
+  if(!pool) return;
+  const tags = DEFAULT_TAGS.session;
+  pool.innerHTML = tags.map(t => {
+    const active = selectedSessions.includes(t.id);
+    return `<span class="tag-pill session${active?' active':''}" onclick="toggleSession('${t.id}')">${t.label}</span>`;
+  }).join('');
+}
+function toggleSession(id) {
+  const idx = selectedSessions.indexOf(id);
+  if(idx>=0) selectedSessions.splice(idx,1); else selectedSessions.push(id);
+  renderSessionTags(selectedSessions);
+}
+function getSessionLabels() {
+  return selectedSessions.map(id => DEFAULT_TAGS.session.find(t=>t.id===id)?.label).filter(Boolean);
 }
 
 let selectedTags = { mtf: [], ltf: [] };
@@ -934,25 +1084,37 @@ function setGrade(g){
 // ═══════════════════════════════════════════
 //  TAG SYSTEM
 // ═══════════════════════════════════════════
+const CAT_COLORS = {
+  wyckoff:'#a78bfa', smc:'#4d8eff', poi:'#fb923c',
+  pa:'#2dce78', fibo:'#f5c842', other:'#6b7591', session:'#2dce78'
+};
+const CAT_NAMES = {
+  wyckoff:'📊 Wyckoff', smc:'⚡ SMC/ICT', poi:'🎯 POI',
+  pa:'📈 Price Action', fibo:'🔢 Fibonacci', other:'🔖 Other'
+};
 function renderTagContainer(ctx, container_id) {
   const tags = getTagLib(ctx);
-  const cats = {wyckoff:'Wyckoff',smc:'SMC/ICT',pa:'Price Action',fibo:'Fibonacci',poi:'POI',other:'Other'};
   const catOrder = ['wyckoff','smc','poi','pa','fibo','other'];
   let html='';
   catOrder.forEach(cat=>{
     const catTags = tags.filter(t=>t.cat===cat);
     if(!catTags.length)return;
-    html+=`<div class="tag-section"><div class="tag-section-title">${cats[cat]||cat}</div><div class="tag-pool">`;
+    const col = CAT_COLORS[cat]||'#6b7591';
+    html+=`<div class="tag-section">
+      <div class="tag-section-title" style="color:${col};">${CAT_NAMES[cat]||cat}</div>
+      <div class="tag-pool">`;
     catTags.forEach(t=>{
       const active=selectedTags[ctx].includes(t.id);
-      html+=`<span class="tag-pill ${t.cat}${active?' active':''}" onclick="toggleTag('${ctx}','${t.id}')">${t.label}</span>`;
+      html+=`<span class="tag-pill ${t.cat}${active?' active':''}" 
+        style="${active?`background:${col}22;border-color:${col};color:${col};`:''}"
+        onclick="toggleTag('${ctx}','${t.id}','${col}')">${t.label}</span>`;
     });
     html+='</div></div>';
   });
   html+=`<span class="tag-manage-btn" onclick="openTagMgr('${ctx}')">⚙ จัดการ Tags</span>`;
   document.getElementById(container_id).innerHTML=html;
 }
-function toggleTag(ctx,id){
+function toggleTag(ctx,id,col){
   const arr=selectedTags[ctx];
   const idx=arr.indexOf(id);
   if(idx>=0)arr.splice(idx,1); else arr.push(id);
@@ -1024,11 +1186,13 @@ function openTradeModal(id=null){
   const t=id?trades.find(x=>x.id===id):null;
   document.getElementById('trade-modal-title').textContent=id?'✏️ Edit Trade':'📋 Add Trade';
   document.getElementById('t-delete-btn').style.display=id?'inline-flex':'none';
-  document.getElementById('t-symbol').value=t?.symbol||'';
+  renderSymbolPool(t?.symbol||getSymbols()[0]||'');
+  if(t?.symbol) selectSymbol(t.symbol);
+  document.getElementById('mtf-setup-name').value=t?.mtf_setup_name||'';
   document.getElementById('htf-tf').value=t?.htf_tf||'';
   document.getElementById('htf-trend').value=t?.htf_trend||'';
   document.getElementById('mtf-tf').value=t?.mtf_tf||'';
-  document.getElementById('mtf-session').value=t?.mtf_session||'';
+  renderSessionTags(t?.mtf_sessions||[]);
   document.getElementById('ltf-tf').value=t?.ltf_tf||'';
   document.getElementById('t-entry').value=t?.entry||'';
   document.getElementById('t-sl').value=t?.sl||'';
@@ -1071,7 +1235,9 @@ async function saveTrade(){
     htf_tf:document.getElementById('htf-tf').value,
     htf_trend:document.getElementById('htf-trend').value,
     mtf_tf:document.getElementById('mtf-tf').value,
-    mtf_session:document.getElementById('mtf-session').value,
+    mtf_setup_name:document.getElementById('mtf-setup-name').value.trim(),
+    mtf_session:getSessionLabels().join(', '),
+    mtf_sessions:selectedSessions,
     mtf_tags:selectedTags.mtf,
     ltf_tf:document.getElementById('ltf-tf').value,
     ltf_tags:selectedTags.ltf,
