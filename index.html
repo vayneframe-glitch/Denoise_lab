@@ -704,6 +704,128 @@ let currentGrade = 'B';
 let tagMgrContext = null; // 'mtf' or 'ltf'
 const PER_PAGE = 15;
 
+async function init() {
+  const { data: { session } } = await sb.auth.getSession();
+  if (session) {
+    currentUser = session.user;
+    showAccPage();
+  } else {
+    showAuthPage();
+  }
+}
+
+function showLoading() { document.getElementById('loading-screen').style.display='flex'; document.getElementById('auth-page').style.display='none'; document.getElementById('acc-page').style.display='none'; document.getElementById('app').style.display='none'; }
+function showAuthPage() { document.getElementById('loading-screen').style.display='none'; document.getElementById('auth-page').style.display='block'; document.getElementById('acc-page').style.display='none'; document.getElementById('app').style.display='none'; }
+function showAccPage() { document.getElementById('loading-screen').style.display='none'; document.getElementById('auth-page').style.display='none'; document.getElementById('acc-page').style.display='flex'; document.getElementById('app').style.display='none'; loadAccounts(); }
+function showApp() { document.getElementById('loading-screen').style.display='none'; document.getElementById('auth-page').style.display='none'; document.getElementById('acc-page').style.display='none'; document.getElementById('app').style.display='block'; loadAllData(); }
+
+// ═══════════════════════════════════════════
+//  AUTH
+// ═══════════════════════════════════════════
+let authMode = 'login';
+function switchAuthTab(mode) {
+  authMode = mode;
+  document.querySelectorAll('.auth-tab').forEach((t,i)=>t.classList.toggle('active', (i===0&&mode==='login')||(i===1&&mode==='register')));
+  document.getElementById('auth-btn').textContent = mode==='login'?'Login':'Register';
+  document.getElementById('auth-err').textContent='';
+}
+async function doAuth() {
+  const email = document.getElementById('auth-email').value.trim();
+  const pass = document.getElementById('auth-pass').value;
+  const btn = document.getElementById('auth-btn');
+  if(!email||!pass){document.getElementById('auth-err').textContent='กรอก email และ password';return;}
+  btn.disabled=true; btn.textContent='กำลังโหลด...';
+  let err;
+  if(authMode==='login'){
+    const r = await sb.auth.signInWithPassword({email,password:pass});
+    err = r.error; if(!err){currentUser=r.data.user; showAccPage();}
+  } else {
+    const r = await sb.auth.signUp({email,password:pass});
+    err = r.error; if(!err){currentUser=r.data.user; if(currentUser){showAccPage();}else{document.getElementById('auth-err').textContent='ลงทะเบียนแล้ว! กรุณา Login';switchAuthTab('login');}}
+  }
+  if(err){document.getElementById('auth-err').textContent=err.message;}
+  btn.disabled=false; btn.textContent=authMode==='login'?'Login':'Register';
+}
+async function doLogout() {
+  await sb.auth.signOut();
+  currentUser=null; currentAccount=null; trades=[]; playbooks=[];
+  showAuthPage();
+}
+
+// ═══════════════════════════════════════════
+//  ACCOUNTS
+// ═══════════════════════════════════════════
+async function loadAccounts() {
+  document.getElementById('acc-user-label').textContent = currentUser?.email||'';
+  const { data, error } = await sb.from('accounts').select('*').eq('user_id', currentUser.id).order('created_at');
+  if(error){showToast('Error loading accounts','error');return;}
+  renderAccList(data||[]);
+}
+function renderAccList(accounts) {
+  const list = document.getElementById('acc-list');
+  if(!accounts.length){list.innerHTML='<div style="color:var(--dim);font-size:12px;text-align:center;padding:20px;">ยังไม่มี Account — สร้างด้านล่างได้เลย</div>';return;}
+  list.innerHTML = accounts.map(a=>`
+    <div class="acc-item" onclick="selectAccount('${a.id}','${a.name.replace(/'/g,"\'")}')">
+      <div><div class="acc-item-name">${a.name}</div><div class="acc-item-meta">${a.created_at?.split('T')[0]||''}</div></div>
+      <button class="acc-item-del" onclick="event.stopPropagation();deleteAccount('${a.id}')">🗑</button>
+    </div>`).join('');
+}
+async function createAccount() {
+  const name = document.getElementById('acc-new-name').value.trim();
+  if(!name){showToast('ใส่ชื่อก่อน','error');return;}
+  const {data,error} = await sb.from('accounts').insert({user_id:currentUser.id,name}).select().single();
+  if(error){showToast('Error: '+error.message,'error');return;}
+  document.getElementById('acc-new-name').value='';
+  showToast('✅ สร้าง Account แล้ว');
+  loadAccounts();
+}
+async function deleteAccount(id) {
+  if(!confirm('ลบ Account นี้? ข้อมูล Trade ทั้งหมดจะหายไป'))return;
+  await sb.from('trades').delete().eq('account_id',id);
+  await sb.from('playbooks').delete().eq('account_id',id);
+  await sb.from('accounts').delete().eq('id',id);
+  showToast('🗑 ลบแล้ว','error');
+  loadAccounts();
+}
+function selectAccount(id,name) {
+  currentAccount = {id,name};
+  document.getElementById('sb-acc-name').textContent=name;
+  showApp();
+}
+function goAccPage() { currentAccount=null; showAccPage(); }
+
+// ═══════════════════════════════════════════
+//  NAVIGATION
+// ═══════════════════════════════════════════
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  document.getElementById('nav-'+id).classList.add('active');
+  const t={dashboard:'Dashboard',tradelog:'Trade Log',analytics:'Analytics',playbook:'Playbook'};
+  document.getElementById('page-title-txt').textContent=t[id]||id;
+  if(id==='dashboard')renderDashboard();
+  if(id==='tradelog'){updateFilterOptions();applyFilters();}
+  if(id==='analytics'){updateFilterOptions();renderAnalytics();}
+  if(id==='playbook')renderPlaybook();
+}
+
+// ═══════════════════════════════════════════
+//  LOAD DATA
+// ═══════════════════════════════════════════
+async function loadAllData() {
+  if(!currentAccount)return;
+  const [t,p] = await Promise.all([
+    sb.from('trades').select('*').eq('account_id',currentAccount.id).order('created_at',{ascending:false}),
+    sb.from('playbooks').select('*').eq('account_id',currentAccount.id).order('created_at')
+  ]);
+  trades = t.data||[];
+  playbooks = p.data||[];
+  renderDashboard();
+  updateFilterOptions();
+}
+
+
 // DEFAULT TAG LIBRARY
 const DEFAULT_TAGS = {
   mtf: [
@@ -820,6 +942,20 @@ function renderTagContainer(ctx, container_id) {
   html+=`<span class="tag-manage-btn" onclick="openTagMgr('${ctx}')">⚙ จัดการ Tags</span>`;
   document.getElementById(container_id).innerHTML=html;
 }
+function getTagLib(ctx) {
+  const key = 'dnl_tags_' + ctx + '_' + (currentAccount?.id||'');
+  const stored = localStorage.getItem(key);
+  if(stored) return JSON.parse(stored);
+  const def = JSON.parse(JSON.stringify(DEFAULT_TAGS[ctx]));
+  localStorage.setItem(key, JSON.stringify(def));
+  return def;
+}
+function saveTagLib(ctx, tags) {
+  const key = 'dnl_tags_' + ctx + '_' + (currentAccount?.id||'');
+  localStorage.setItem(key, JSON.stringify(tags));
+}
+
+
 function toggleTag(ctx,id,col){
   const arr=selectedTags[ctx];
   const idx=arr.indexOf(id);
@@ -827,6 +963,78 @@ function toggleTag(ctx,id,col){
   renderTagContainer(ctx, ctx+'-tags-container');
   if(ctx==='mtf') updateSetupPreview();
 }
+
+// ── SYMBOL SYSTEM ──
+function getSymbols() {
+  const key = 'dnl_symbols_' + (currentAccount?.id||'');
+  const stored = localStorage.getItem(key);
+  if(stored) return JSON.parse(stored);
+  const def = ['XAUUSD','EURUSD','GBPUSD','US30','NAS100'];
+  localStorage.setItem(key, JSON.stringify(def));
+  return def;
+}
+function saveSymbols(arr) {
+  localStorage.setItem('dnl_symbols_'+(currentAccount?.id||''), JSON.stringify(arr));
+}
+function renderSymbolPool(selected) {
+  const syms = getSymbols();
+  const pool = document.getElementById('symbol-pool');
+  if(!pool) return;
+  const sel = selected || syms[0] || '';
+  pool.innerHTML = syms.map(s =>
+    `<span class="symbol-pill${s===sel?' active':''}" onclick="selectSymbol('${s}')">${s}</span>`
+  ).join('');
+  document.getElementById('t-symbol').value = sel;
+}
+function selectSymbol(s) {
+  document.querySelectorAll('.symbol-pill').forEach(el => el.classList.toggle('active', el.textContent===s));
+  document.getElementById('t-symbol').value = s;
+}
+function addSymbol() {
+  const inp = document.getElementById('symbol-new-input');
+  const val = inp.value.trim().toUpperCase();
+  if(!val) return;
+  const syms = getSymbols();
+  if(!syms.includes(val)) { syms.push(val); saveSymbols(syms); }
+  inp.value = '';
+  renderSymbolPool(val);
+  selectSymbol(val);
+}
+function removeSymbol() {
+  const active = document.querySelector('.symbol-pill.active');
+  if(!active) return;
+  const val = active.textContent;
+  if(!confirm('ลบ '+val+'?')) return;
+  let syms = getSymbols().filter(s => s !== val);
+  saveSymbols(syms);
+  renderSymbolPool(syms[0]||'');
+}
+
+// ── SESSION TAGS ──
+let selectedSessions = [];
+function renderSessionTags(selected) {
+  selectedSessions = selected || [];
+  const pool = document.getElementById('session-tag-pool');
+  if(!pool) return;
+  const tags = DEFAULT_TAGS.session;
+  pool.innerHTML = tags.map(t => {
+    const active = selectedSessions.includes(t.id);
+    const col = '#2dce78';
+    return `<span class="tag-pill session${active?' active':''}"
+      style="${active?'background:#2dce7822;border-color:#2dce78;color:#2dce78;':''}"
+      onclick="toggleSession('${t.id}')">${t.label}</span>`;
+  }).join('');
+}
+function toggleSession(id) {
+  const idx = selectedSessions.indexOf(id);
+  if(idx>=0) selectedSessions.splice(idx,1); else selectedSessions.push(id);
+  renderSessionTags(selectedSessions);
+  updateSetupPreview();
+}
+function getSessionLabels() {
+  return selectedSessions.map(id => DEFAULT_TAGS.session.find(t=>t.id===id)?.label).filter(Boolean);
+}
+
 function updateSetupPreview(){
   const preview = document.getElementById('mtf-setup-preview');
   if(!preview) return;
