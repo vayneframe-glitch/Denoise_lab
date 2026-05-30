@@ -942,6 +942,187 @@ function renderTagContainer(ctx, container_id) {
   html+=`<span class="tag-manage-btn" onclick="openTagMgr('${ctx}')">⚙ จัดการ Tags</span>`;
   document.getElementById(container_id).innerHTML=html;
 }
+// ═══════════════════════════════════════════
+//  HELPERS
+// ═══════════════════════════════════════════
+function fmtR(r){if(r===null||r===undefined)return'—';const n=parseFloat(r);return(n>=0?'+':'')+n.toFixed(2)+'R';}
+function fmtPnl(v){if(v===null||v===undefined)return'—';const n=parseFloat(v);return(n>=0?'+$':'-$')+Math.abs(n).toFixed(2);}
+function sessionClass(s){if(!s)return's-other';if(s.includes('Asian'))return's-asian';if(s.includes('London'))return's-london';if(s.includes('New York'))return's-ny';return's-other';}
+function rClass(r){const n=parseFloat(r);if(isNaN(n))return'r-zero';return n>0?'r-pos':n<0?'r-neg':'r-zero';}
+function catClass(c){return{SMC:'cat-smc',Wyckoff:'cat-wyckoff',PA:'cat-pa',Dow:'cat-dow'}[c]||'cat-other';}
+function catLabel(c){return{SMC:'⚡ SMC/ICT',Wyckoff:'📊 Wyckoff',PA:'📈 PA',Dow:'📉 Dow',Other:'🎯 Other'}[c]||c;}
+function gradeClass(g){return{A:'grade-A',B:'grade-B',C:'grade-C'}[g]||'grade-B';}
+function showToast(msg,type='success'){const el=document.getElementById('toast');el.textContent=msg;el.className='toast '+type+' show';setTimeout(()=>el.classList.remove('show'),2500);}
+
+// ═══════════════════════════════════════════
+//  PRICE CALCULATOR
+// ═══════════════════════════════════════════
+function calcPrice() {
+  const entry=parseFloat(document.getElementById('t-entry').value);
+  const sl=parseFloat(document.getElementById('t-sl').value);
+  const tp=parseFloat(document.getElementById('t-tp').value);
+  const lot=parseFloat(document.getElementById('t-lot').value)||0.01;
+  const pipVal=10;
+  if(isNaN(entry)||isNaN(sl)||sl===entry){
+    ['calc-rr','calc-rmul','calc-profit','calc-loss','calc-pnl'].forEach(id=>document.getElementById(id).textContent='—');
+    return;
+  }
+  const riskPips=Math.abs(entry-sl);
+  const riskDollar=riskPips*pipVal*lot;
+  let rr='—',rmul='—',profit='—',loss='-$'+riskDollar.toFixed(2),pnl='—';
+  if(!isNaN(tp)&&tp!==entry){
+    const rewardPips=Math.abs(tp-entry);
+    const rewardDollar=rewardPips*pipVal*lot;
+    rr='1:'+(rewardPips/riskPips).toFixed(2);
+    rmul='+'+(rewardPips/riskPips).toFixed(2)+'R';
+    profit='+$'+rewardDollar.toFixed(2);
+    if(currentResult==='win')pnl=profit;
+    else if(currentResult==='loss')pnl=loss;
+    else pnl='$0 (BE)';
+  }
+  document.getElementById('calc-rr').textContent=rr;
+  document.getElementById('calc-rmul').textContent=rmul;
+  document.getElementById('calc-profit').textContent=profit;
+  document.getElementById('calc-loss').textContent=loss;
+  document.getElementById('calc-pnl').textContent=currentResult==='win'?profit:currentResult==='loss'?loss:'$0 (BE)';
+}
+
+function getRMultiple() {
+  const entry=parseFloat(document.getElementById('t-entry').value);
+  const sl=parseFloat(document.getElementById('t-sl').value);
+  const tp=parseFloat(document.getElementById('t-tp').value);
+  if(isNaN(entry)||isNaN(sl)||isNaN(tp)||sl===entry)return null;
+  const riskPips=Math.abs(entry-sl);
+  const rewardPips=Math.abs(tp-entry);
+  const rr=rewardPips/riskPips;
+  if(currentResult==='win')return rr;
+  if(currentResult==='loss')return -1;
+  return 0;
+}
+function getPnlDollar() {
+  const entry=parseFloat(document.getElementById('t-entry').value);
+  const sl=parseFloat(document.getElementById('t-sl').value);
+  const tp=parseFloat(document.getElementById('t-tp').value);
+  const lot=parseFloat(document.getElementById('t-lot').value)||0.01;
+  const pipVal=10;
+  if(isNaN(entry)||isNaN(sl)||sl===entry)return null;
+  const riskPips=Math.abs(entry-sl);
+  const riskDollar=riskPips*pipVal*lot;
+  if(currentResult==='win'){if(isNaN(tp)||tp===entry)return null;const rewardPips=Math.abs(tp-entry);return rewardPips*pipVal*lot;}
+  if(currentResult==='loss')return -riskDollar;
+  return 0;
+}
+
+// ═══════════════════════════════════════════
+//  DIRECTION / RESULT / GRADE TOGGLES
+// ═══════════════════════════════════════════
+function setDir(d){
+  currentDir=d;
+  document.getElementById('dir-long').classList.toggle('active',d==='Long');
+  document.getElementById('dir-long').classList.toggle('win',d==='Long');
+  document.getElementById('dir-short').classList.toggle('active',d==='Short');
+  document.getElementById('dir-short').classList.toggle('loss',d==='Short');
+}
+function setResult(r){
+  currentResult=r;
+  ['win','loss','be'].forEach(x=>{const el=document.getElementById('res-'+x);el.classList.toggle('active',x===r);});
+  calcPrice();
+}
+function setGrade(g){
+  currentGrade=g;
+  ['A','B','C'].forEach(x=>{
+    const el=document.getElementById('grade-'+x);
+    el.classList.remove('active','win','loss','be');
+    if(x===g){el.classList.add('active');el.classList.add(x==='A'?'win':x==='C'?'loss':'be');}
+  });
+}
+
+
+// ═══════════════════════════════════════════
+//  PRICE CALCULATOR
+// ═══════════════════════════════════════════
+function calcPrice() {
+  const entry=parseFloat(document.getElementById('t-entry').value);
+  const sl=parseFloat(document.getElementById('t-sl').value);
+  const tp=parseFloat(document.getElementById('t-tp').value);
+  const lot=parseFloat(document.getElementById('t-lot').value)||0.01;
+  const pipVal=10;
+  if(isNaN(entry)||isNaN(sl)||sl===entry){
+    ['calc-rr','calc-rmul','calc-profit','calc-loss','calc-pnl'].forEach(id=>document.getElementById(id).textContent='—');
+    return;
+  }
+  const riskPips=Math.abs(entry-sl);
+  const riskDollar=riskPips*pipVal*lot;
+  let rr='—',rmul='—',profit='—',loss='-$'+riskDollar.toFixed(2),pnl='—';
+  if(!isNaN(tp)&&tp!==entry){
+    const rewardPips=Math.abs(tp-entry);
+    const rewardDollar=rewardPips*pipVal*lot;
+    rr='1:'+(rewardPips/riskPips).toFixed(2);
+    rmul='+'+(rewardPips/riskPips).toFixed(2)+'R';
+    profit='+$'+rewardDollar.toFixed(2);
+    if(currentResult==='win')pnl=profit;
+    else if(currentResult==='loss')pnl=loss;
+    else pnl='$0 (BE)';
+  }
+  document.getElementById('calc-rr').textContent=rr;
+  document.getElementById('calc-rmul').textContent=rmul;
+  document.getElementById('calc-profit').textContent=profit;
+  document.getElementById('calc-loss').textContent=loss;
+  document.getElementById('calc-pnl').textContent=currentResult==='win'?profit:currentResult==='loss'?loss:'$0 (BE)';
+}
+
+function getRMultiple() {
+  const entry=parseFloat(document.getElementById('t-entry').value);
+  const sl=parseFloat(document.getElementById('t-sl').value);
+  const tp=parseFloat(document.getElementById('t-tp').value);
+  if(isNaN(entry)||isNaN(sl)||isNaN(tp)||sl===entry)return null;
+  const riskPips=Math.abs(entry-sl);
+  const rewardPips=Math.abs(tp-entry);
+  const rr=rewardPips/riskPips;
+  if(currentResult==='win')return rr;
+  if(currentResult==='loss')return -1;
+  return 0;
+}
+function getPnlDollar() {
+  const entry=parseFloat(document.getElementById('t-entry').value);
+  const sl=parseFloat(document.getElementById('t-sl').value);
+  const tp=parseFloat(document.getElementById('t-tp').value);
+  const lot=parseFloat(document.getElementById('t-lot').value)||0.01;
+  const pipVal=10;
+  if(isNaN(entry)||isNaN(sl)||sl===entry)return null;
+  const riskPips=Math.abs(entry-sl);
+  const riskDollar=riskPips*pipVal*lot;
+  if(currentResult==='win'){if(isNaN(tp)||tp===entry)return null;const rewardPips=Math.abs(tp-entry);return rewardPips*pipVal*lot;}
+  if(currentResult==='loss')return -riskDollar;
+  return 0;
+}
+
+
+// ═══════════════════════════════════════════
+//  DIRECTION / RESULT / GRADE TOGGLES
+// ═══════════════════════════════════════════
+function setDir(d){
+  currentDir=d;
+  document.getElementById('dir-long').classList.toggle('active',d==='Long');
+  document.getElementById('dir-long').classList.toggle('win',d==='Long');
+  document.getElementById('dir-short').classList.toggle('active',d==='Short');
+  document.getElementById('dir-short').classList.toggle('loss',d==='Short');
+}
+function setResult(r){
+  currentResult=r;
+  ['win','loss','be'].forEach(x=>{const el=document.getElementById('res-'+x);el.classList.toggle('active',x===r);});
+  calcPrice();
+}
+function setGrade(g){
+  currentGrade=g;
+  ['A','B','C'].forEach(x=>{
+    const el=document.getElementById('grade-'+x);
+    el.classList.remove('active','win','loss','be');
+    if(x===g){el.classList.add('active');el.classList.add(x==='A'?'win':x==='C'?'loss':'be');}
+  });
+}
+
+
 function getTagLib(ctx) {
   const key = 'dnl_tags_' + ctx + '_' + (currentAccount?.id||'');
   const stored = localStorage.getItem(key);
