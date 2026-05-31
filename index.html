@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>DeNoise Lab</title>
-<script src="https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.0/dist/umd/supabase.min.js"></script>
 <link rel="icon" type="image/png" id="favicon-link">
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Sora:wght@300;400;600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -710,7 +710,13 @@ const LOGO_B64 = 'data:image/png;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BS
 // ═══════════════════════════════════════════
 const SUPA_URL = 'https://padoljdpktanqamzdyed.supabase.co';
 const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBhZG9samRwa3RhbnFhbXpkeWVkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAwODkwMTAsImV4cCI6MjA5NTY2NTAxMH0.rPlEw4cGWi5TUx8sz-5PvX1xfr6bzWfSrDrQbdYzoho';
-const sb = supabase.createClient(SUPA_URL, SUPA_KEY);
+let sb;
+try {
+  sb = supabase.createClient(SUPA_URL, SUPA_KEY);
+} catch(e) {
+  console.error('Supabase failed to load:', e);
+  document.getElementById('loading-screen').innerHTML = '<div style="color:#ff4d6a;text-align:center;padding:40px;font-family:Sora,sans-serif;"><div style="font-size:24px;margin-bottom:12px;">⚠ โหลดไม่ได้</div><div style="font-size:13px;color:#6b7591;">กรุณา refresh หน้าใหม่ครับ</div><button onclick="location.reload()" style="margin-top:16px;padding:10px 24px;background:#f5c842;color:#000;border:none;border-radius:8px;font-size:13px;cursor:pointer;">🔄 Refresh</button></div>';
+}
 
 // ═══════════════════════════════════════════
 //  STATE
