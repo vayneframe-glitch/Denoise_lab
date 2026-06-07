@@ -283,6 +283,13 @@ textarea{resize:vertical;min-height:70px;}
 .section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
 .section-title{font-size:14px;font-weight:700;color:var(--bright);}
 
+.lightbox{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:999;display:none;align-items:center;justify-content:center;cursor:zoom-out;}
+.lightbox.show{display:flex;}
+.lightbox img{max-width:92vw;max-height:92vh;border-radius:10px;object-fit:contain;box-shadow:0 0 60px rgba(0,0,0,.8);}
+.lightbox-close{position:absolute;top:20px;right:24px;color:#fff;font-size:28px;cursor:pointer;background:none;border:none;opacity:.7;}
+.lightbox-close:hover{opacity:1;}
+.lightbox-label{position:absolute;top:20px;left:50%;transform:translateX(-50%);color:var(--muted);font-size:11px;font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:1px;}
+
 .page{display:none;}
 .page.active{display:block;}
 ::-webkit-scrollbar{width:4px;height:4px;}
@@ -684,6 +691,13 @@ textarea{resize:vertical;min-height:70px;}
   <div class="modal-head"><h2 id="detail-title">Trade Detail</h2><button class="modal-close" onclick="closeDetailModal()">✕</button></div>
   <div class="modal-body" id="detail-body"></div>
 </div>
+</div>
+
+<!-- LIGHTBOX -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+  <button class="lightbox-close" onclick="closeLightbox()">✕</button>
+  <div class="lightbox-label" id="lightbox-label"></div>
+  <img id="lightbox-img" src="" alt="Chart">
 </div>
 
 <script>
@@ -2124,6 +2138,20 @@ function toggleTag(ctx,id,col){
 }
 
 
+// ── LIGHTBOX ──
+function openLightbox(src, label) {
+  document.getElementById('lightbox-img').src = src;
+  document.getElementById('lightbox-label').textContent = label || '';
+  document.getElementById('lightbox').classList.add('show');
+  document.body.style.overflow = 'hidden';
+}
+function closeLightbox() {
+  document.getElementById('lightbox').classList.remove('show');
+  document.getElementById('lightbox-img').src = '';
+  document.body.style.overflow = '';
+}
+document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeLightbox(); });
+
 // ── PRESET SYSTEM ──
 function getPresets() {
   return JSON.parse(localStorage.getItem('dnl_presets_'+(currentAccount?.id||''))||'[]');
@@ -2393,8 +2421,8 @@ function openDetail(id){
   const rHtml=`<span class="r-badge ${rClass(t.rmul)}">${fmtR(t.rmul)}</span>`;
   const pnlColor=t.pnl>0?'var(--green)':t.pnl<0?'var(--red)':'var(--muted)';
   const ssSection=(t.ss_mtf||t.ss_ltf)?`<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
-    ${t.ss_mtf?`<div><div style="font-size:9px;color:var(--gold);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">MTF</div><img src="${t.ss_mtf}" style="width:100%;border-radius:8px;"></div>`:''}
-    ${t.ss_ltf?`<div><div style="font-size:9px;color:var(--green);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">LTF</div><img src="${t.ss_ltf}" style="width:100%;border-radius:8px;"></div>`:''}
+    ${t.ss_mtf?`<div><div style="font-size:9px;color:var(--gold);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">MTF</div><img src="${t.ss_mtf}" style="width:100%;border-radius:8px;cursor:zoom-in;" onclick="openLightbox('${t.ss_mtf}','MTF Chart')" title="คลิกเพื่อขยาย"></div>`:''}
+    ${t.ss_ltf?`<div><div style="font-size:9px;color:var(--green);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">LTF</div><img src="${t.ss_ltf}" style="width:100%;border-radius:8px;cursor:zoom-in;" onclick="openLightbox('${t.ss_ltf}','LTF Chart')" title="คลิกเพื่อขยาย"></div>`:''}
   </div>`:'';
   document.getElementById('detail-title').textContent=t.symbol+' — '+t.dir;
   document.getElementById('detail-body').innerHTML=`
