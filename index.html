@@ -296,6 +296,53 @@ textarea{resize:vertical;min-height:70px;}
 ::-webkit-scrollbar-track{background:transparent;}
 ::-webkit-scrollbar-thumb{background:var(--line);border-radius:2px;}
 @media(max-width:900px){.sidebar{display:none;}.stats-row{grid-template-columns:repeat(2,1fr);}.analytics-grid{grid-template-columns:1fr;}.form-grid,.form-grid-3,.screenshot-row,.ss-url-row{grid-template-columns:1fr;}}
+
+/* ── BACKTEST SECTION BLOCKS ── */
+.bt-section{background:var(--ink3);border:1px solid var(--line);border-radius:var(--radius);margin-bottom:12px;overflow:hidden;}
+.bt-section-head{display:flex;align-items:center;gap:8px;padding:8px 14px;border-bottom:1px solid var(--line);background:var(--ink2);}
+.bt-badge{font-size:9px;font-weight:700;padding:2px 9px;border-radius:20px;letter-spacing:.5px;text-transform:uppercase;}
+.bt-badge-kz{background:rgba(77,142,255,.15);color:var(--blue);}
+.bt-badge-ctx{background:rgba(167,139,250,.15);color:var(--purple);}
+.bt-badge-wyck{background:rgba(45,206,120,.15);color:var(--green);}
+.bt-badge-trade{background:rgba(255,77,106,.15);color:var(--red);}
+.bt-badge-result{background:rgba(45,206,120,.15);color:var(--green);}
+.bt-badge-exec{background:rgba(251,146,60,.15);color:var(--orange);}
+.bt-badge-loss{background:rgba(107,117,145,.15);color:var(--muted);}
+.bt-section-title{font-size:11px;color:var(--muted);}
+.bt-body{padding:12px 14px;display:flex;flex-direction:column;gap:10px;}
+.bt-field{display:flex;flex-direction:column;gap:5px;}
+.bt-label{font-size:9px;color:var(--dim);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:1px;}
+.bt-row{display:flex;gap:10px;flex-wrap:wrap;}
+.bt-row .bt-field{flex:1;min-width:140px;}
+
+/* ── CLICKABLE TAG PILLS ── */
+.bt-tag{font-size:11px;padding:4px 12px;border-radius:20px;border:1px solid var(--line);background:transparent;color:var(--muted);cursor:pointer;transition:all .15s;user-select:none;font-family:'Sora',sans-serif;}
+.bt-tag:hover{border-color:var(--dim);color:var(--text);}
+.bt-tag.sel-blue{background:rgba(77,142,255,.18);border-color:var(--blue);color:var(--blue);font-weight:700;}
+.bt-tag.sel-purple{background:rgba(167,139,250,.18);border-color:var(--purple);color:var(--purple);font-weight:700;}
+.bt-tag.sel-green{background:rgba(45,206,120,.18);border-color:var(--green);color:var(--green);font-weight:700;}
+.bt-tag.sel-amber{background:rgba(245,200,66,.18);border-color:var(--gold);color:var(--gold);font-weight:700;}
+.bt-tag.sel-orange{background:rgba(251,146,60,.18);border-color:var(--orange);color:var(--orange);font-weight:700;}
+.bt-tag.sel-red{background:rgba(255,77,106,.18);border-color:var(--red);color:var(--red);font-weight:700;}
+.bt-tag.sel-gray{background:rgba(107,117,145,.18);border-color:var(--muted);color:var(--text);font-weight:700;}
+.bt-tags-wrap{display:flex;flex-wrap:wrap;gap:5px;}
+
+/* ── DIR BUTTONS BUY/SELL ── */
+.dir-big-btn{flex:1;padding:10px;border:1.5px solid var(--line);border-radius:var(--radius-sm);background:transparent;font-family:'DM Mono',monospace;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;color:var(--muted);}
+.dir-big-btn.buy.active{background:rgba(45,206,120,.15);border-color:var(--green);color:var(--green);}
+.dir-big-btn.sell.active{background:rgba(255,77,106,.15);border-color:var(--red);color:var(--red);}
+.dir-big-btn:hover{border-color:var(--dim);}
+
+/* ── PRICE GRID 4 cols ── */
+.form-grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:10px;}
+
+/* ── DETAIL RIGHT COL ── */
+.detail-info-section{margin-bottom:16px;}
+.detail-info-head{font-size:9px;color:var(--dim);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:8px;padding-bottom:5px;border-bottom:1px solid var(--line);}
+.detail-info-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid #141c2e;}
+.detail-info-row:last-child{border-bottom:none;}
+.detail-info-key{font-size:12px;color:var(--muted);}
+.detail-info-val{font-size:12px;font-weight:600;font-family:'DM Mono',monospace;}
 </style>
 </head>
 <body>
@@ -474,11 +521,13 @@ textarea{resize:vertical;min-height:70px;}
   </div>
   <div class="modal-body">
 
-    <!-- 1. BASIC INFO -->
-    <div class="form-section-title">1 · Basic Info</div>
-    <!-- SYMBOL TOGGLE -->
-    <div style="margin-bottom:14px;">
-      <label style="display:block;margin-bottom:8px;">Symbol</label>
+    <!-- hidden symbol input -->
+    <div style="display:none;"><input type="text" id="t-symbol"></div>
+
+    <!-- SYMBOL -->
+    <div class="form-section-title">1 · Symbol &amp; Direction</div>
+    <div style="margin-bottom:10px;">
+      <label style="display:block;margin-bottom:8px;font-size:10px;color:var(--dim);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:1px;">Symbol</label>
       <div class="symbol-pool" id="symbol-pool"></div>
       <div class="symbol-add-row">
         <input type="text" id="symbol-new-input" placeholder="เพิ่ม Symbol เช่น XAUUSD" maxlength="12">
@@ -486,108 +535,307 @@ textarea{resize:vertical;min-height:70px;}
         <button class="btn btn-ghost btn-sm" style="color:var(--red);" onclick="removeSymbol()">－</button>
       </div>
     </div>
-    <div class="form-grid">
-      <div class="fg" style="display:none;"><label>Symbol</label><input type="text" id="t-symbol" placeholder="XAUUSD"></div>
-      <div class="fg"><label>Direction</label>
-        <div style="display:flex;gap:6px;margin-top:2px;">
-          <button class="result-btn" id="dir-long" onclick="setDir('Long')">↑ Long</button>
-          <button class="result-btn" id="dir-short" onclick="setDir('Short')">↓ Short</button>
-        </div>
+    <div class="bt-field" style="margin-bottom:14px;">
+      <div class="bt-label">Direction</div>
+      <div style="display:flex;gap:8px;">
+        <button class="dir-big-btn buy" id="dir-long" onclick="setDir('Long')">▲ BUY</button>
+        <button class="dir-big-btn sell" id="dir-short" onclick="setDir('Short')">▼ SELL</button>
       </div>
-    </div>
-
-    <!-- HTF -->
-    <div class="tf-block">
-      <div class="tf-block-header">
-        <span class="tf-block-badge tf-htf">HTF</span>
-        <span style="font-size:11px;color:var(--muted);">Higher Time Frame — Bias</span>
-      </div>
-      <div class="tf-select-row">
-        <select id="htf-tf" style="width:auto;">
-          <option value="">TF</option><option>W1</option><option>D1</option><option>H4</option><option>H1</option>
-        </select>
-        <select id="htf-trend" style="width:auto;">
-          <option value="">Trend</option><option>Up Trend</option><option>Down Trend</option><option>Range</option><option>Accumulation</option><option>Distribution</option>
-        </select>
-      </div>
-    </div>
-
-    <!-- MTF -->
-    <div class="tf-block">
-      <div class="tf-block-header">
-        <span class="tf-block-badge tf-mtf">MTF</span>
-        <span style="font-size:11px;color:var(--muted);">Middle Time Frame — Setup</span>
-      </div>
-      <!-- MTF Setup Name — datalist -->
-      <div style="margin-bottom:12px;">
-        <label style="display:block;margin-bottom:6px;">Setup Name <span style="color:var(--dim);font-size:9px;">(พิมพ์หรือเลือก Preset)</span></label>
-        <div style="display:flex;gap:6px;">
-          <div style="position:relative;flex:1;">
-            <input type="text" id="mtf-setup-name" list="preset-datalist" placeholder="เช่น Spring OB Retest..." autocomplete="off" style="width:100%;">
-            <datalist id="preset-datalist"></datalist>
-          </div>
-          <button class="btn btn-ghost btn-sm" onclick="savePreset()" title="Save Preset">＋</button>
-          <button class="btn btn-ghost btn-sm" style="color:var(--red);" onclick="deleteCurrentPreset()" title="Delete Preset">🗑</button>
-        </div>
-      </div>
-      <div class="tf-select-row" style="margin-bottom:10px;">
-        <select id="mtf-tf" style="width:auto;" onchange="updateSetupPreview()">
-          <option value="">TF</option><option>H4</option><option>H1</option><option>M30</option><option>M15</option><option>M5</option>
-        </select>
-      </div>
-      <!-- Session Tags -->
-      <div style="margin-bottom:10px;">
-        <div class="tag-section-title">Session</div>
-        <div class="tag-pool" id="session-tag-pool"></div>
-      </div>
-      <div id="mtf-tags-container"></div>
-    </div>
-
-    <!-- LTF -->
-    <div class="tf-block">
-      <div class="tf-block-header">
-        <span class="tf-block-badge tf-ltf">LTF</span>
-        <span style="font-size:11px;color:var(--muted);">Low Time Frame — Confirmation</span>
-      </div>
-      <div class="tf-select-row" style="margin-bottom:10px;">
-        <select id="ltf-tf" style="width:auto;">
-          <option value="">TF</option><option>M15</option><option>M5</option><option>M1</option>
-        </select>
-      </div>
-      <div id="ltf-tags-container"></div>
     </div>
 
     <div class="form-divider"></div>
 
-    <!-- 2. PRICE LEVELS -->
-    <div class="form-section-title">2 · Price Levels</div>
-    <div class="form-grid-3">
-      <div class="fg"><label>Entry</label><input type="number" id="t-entry" placeholder="0.00" step="any" oninput="calcPrice()"></div>
-      <div class="fg"><label>Stop Loss</label><input type="number" id="t-sl" placeholder="0.00" step="any" oninput="calcPrice()"></div>
-      <div class="fg"><label>Take Profit</label><input type="number" id="t-tp" placeholder="0.00" step="any" oninput="calcPrice()"></div>
+    <!-- KILL ZONE -->
+    <div class="bt-section">
+      <div class="bt-section-head">
+        <span class="bt-badge bt-badge-kz">Kill Zone</span>
+        <span class="bt-section-title">Session ที่เข้า</span>
+      </div>
+      <div class="bt-body">
+        <div class="bt-field">
+          <div class="bt-tags-wrap" id="kz-tags">
+            <span class="bt-tag" data-group="kz" data-val="London" data-color="sel-blue" onclick="btToggle(this)">London</span>
+            <span class="bt-tag" data-group="kz" data-val="New York" data-color="sel-blue" onclick="btToggle(this)">New York</span>
+            <span class="bt-tag" data-group="kz" data-val="London Close" data-color="sel-blue" onclick="btToggle(this)">London Close</span>
+            <span class="bt-tag" data-group="kz" data-val="Asian" data-color="sel-blue" onclick="btToggle(this)">Asian</span>
+          </div>
+        </div>
+      </div>
     </div>
-    <div class="form-grid">
-      <div class="fg"><label>Lot Size</label><input type="number" id="t-lot" placeholder="0.01" step="0.01" value="0.01" oninput="calcPrice()"></div>
-      <div class="fg"><label>Pip Value ($) — คงที่ $10</label><input type="number" id="t-pipval" value="10" step="any" oninput="calcPrice()" readonly style="color:var(--muted);"></div>
+
+    <!-- CONTEXT -->
+    <div class="bt-section">
+      <div class="bt-section-head">
+        <span class="bt-badge bt-badge-ctx">Context</span>
+        <span class="bt-section-title">ภาพรวม HTF</span>
+      </div>
+      <div class="bt-body">
+        <div class="bt-row">
+          <div class="bt-field">
+            <div class="bt-label">HTF Bias</div>
+            <div class="bt-tags-wrap">
+              <span class="bt-tag" data-group="htf_bias" data-val="Bullish" data-color="sel-green" onclick="btToggle(this)">Bullish</span>
+              <span class="bt-tag" data-group="htf_bias" data-val="Bearish" data-color="sel-red" onclick="btToggle(this)">Bearish</span>
+              <span class="bt-tag" data-group="htf_bias" data-val="Unclear" data-color="sel-gray" onclick="btToggle(this)">Unclear</span>
+            </div>
+          </div>
+          <div class="bt-field">
+            <div class="bt-label">Wyckoff Phase (H4)</div>
+            <div class="bt-tags-wrap">
+              <span class="bt-tag" data-group="wyckoff_phase_h4" data-val="Phase A" data-color="sel-purple" onclick="btToggle(this)">Phase A</span>
+              <span class="bt-tag" data-group="wyckoff_phase_h4" data-val="Phase B" data-color="sel-purple" onclick="btToggle(this)">Phase B</span>
+              <span class="bt-tag" data-group="wyckoff_phase_h4" data-val="Phase C" data-color="sel-purple" onclick="btToggle(this)">Phase C</span>
+              <span class="bt-tag" data-group="wyckoff_phase_h4" data-val="Phase D" data-color="sel-purple" onclick="btToggle(this)">Phase D</span>
+              <span class="bt-tag" data-group="wyckoff_phase_h4" data-val="Phase E" data-color="sel-purple" onclick="btToggle(this)">Phase E</span>
+            </div>
+          </div>
+        </div>
+        <div class="bt-row">
+          <div class="bt-field">
+            <div class="bt-label">BSL อยู่ที่</div>
+            <input type="text" id="t-bsl" class="bt-field-input" placeholder="ระดับราคา..." style="background:var(--ink3);border:1px solid var(--line);color:var(--text);border-radius:var(--radius-sm);padding:7px 10px;font-size:12px;font-family:'DM Mono',monospace;outline:none;width:100%;">
+          </div>
+          <div class="bt-field">
+            <div class="bt-label">SSL อยู่ที่</div>
+            <input type="text" id="t-ssl" class="bt-field-input" placeholder="ระดับราคา..." style="background:var(--ink3);border:1px solid var(--line);color:var(--text);border-radius:var(--radius-sm);padding:7px 10px;font-size:12px;font-family:'DM Mono',monospace;outline:none;width:100%;">
+          </div>
+        </div>
+        <div class="bt-row">
+          <div class="bt-field">
+            <div class="bt-label">POI ที่เลือก</div>
+            <div class="bt-tags-wrap">
+              <span class="bt-tag" data-group="poi_type_sel" data-val="POI Orange" data-color="sel-orange" onclick="btToggle(this)">POI Orange</span>
+              <span class="bt-tag" data-group="poi_type_sel" data-val="POI FOCUZ" data-color="sel-amber" onclick="btToggle(this)">POI FOCUZ</span>
+            </div>
+          </div>
+          <div class="bt-field">
+            <div class="bt-label">POI Type</div>
+            <div class="bt-tags-wrap">
+              <span class="bt-tag" data-group="poi_type" data-val="BB" data-color="sel-amber" onclick="btToggle(this)">BB</span>
+              <span class="bt-tag" data-group="poi_type" data-val="BKB" data-color="sel-amber" onclick="btToggle(this)">BKB</span>
+              <span class="bt-tag" data-group="poi_type" data-val="Fresh" data-color="sel-amber" onclick="btToggle(this)">Fresh</span>
+              <span class="bt-tag" data-group="poi_type" data-val="Retested" data-color="sel-amber" onclick="btToggle(this)">Retested</span>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
-    <div class="price-calc-result" id="price-calc">
-      <div class="calc-item"><div class="calc-label">RR</div><div class="calc-val" id="calc-rr" style="color:var(--blue);">—</div></div>
-      <div class="calc-item"><div class="calc-label">R Multiple</div><div class="calc-val" id="calc-rmul" style="color:var(--text);">—</div></div>
-      <div class="calc-item"><div class="calc-label">Profit ($)</div><div class="calc-val pos" id="calc-profit">—</div></div>
-      <div class="calc-item"><div class="calc-label">Loss ($)</div><div class="calc-val neg" id="calc-loss">—</div></div>
-      <div class="calc-item"><div class="calc-label">Actual P&L</div><div class="calc-val" id="calc-pnl">—</div></div>
+
+    <!-- WYCKOFF AT POI -->
+    <div class="bt-section">
+      <div class="bt-section-head">
+        <span class="bt-badge bt-badge-wyck">Wyckoff at POI</span>
+        <span class="bt-section-title">การวิเคราะห์จุดเข้า</span>
+      </div>
+      <div class="bt-body">
+        <div class="bt-field">
+          <div class="bt-label">Phase ที่ POI</div>
+          <div class="bt-tags-wrap">
+            <span class="bt-tag" data-group="poi_phase" data-val="Phase A" data-color="sel-green" onclick="btToggle(this)">Phase A</span>
+            <span class="bt-tag" data-group="poi_phase" data-val="Phase B" data-color="sel-green" onclick="btToggle(this)">Phase B</span>
+            <span class="bt-tag" data-group="poi_phase" data-val="Phase C" data-color="sel-green" onclick="btToggle(this)">Phase C</span>
+            <span class="bt-tag" data-group="poi_phase" data-val="Phase D" data-color="sel-green" onclick="btToggle(this)">Phase D</span>
+            <span class="bt-tag" data-group="poi_phase" data-val="Phase E" data-color="sel-green" onclick="btToggle(this)">Phase E</span>
+          </div>
+        </div>
+        <div class="bt-row">
+          <div class="bt-field">
+            <div class="bt-label">Spring / UTAD เกิดไหม</div>
+            <div class="bt-tags-wrap">
+              <span class="bt-tag" data-group="spring_utad" data-val="ใช่" data-color="sel-green" onclick="btToggle(this)">ใช่</span>
+              <span class="bt-tag" data-group="spring_utad" data-val="ไม่ใช่" data-color="sel-red" onclick="btToggle(this)">ไม่ใช่</span>
+            </div>
+          </div>
+          <div class="bt-field">
+            <div class="bt-label">Volume ตอน Spring</div>
+            <div class="bt-tags-wrap">
+              <span class="bt-tag" data-group="spring_volume" data-val="สูง" data-color="sel-green" onclick="btToggle(this)">สูง</span>
+              <span class="bt-tag" data-group="spring_volume" data-val="ปานกลาง" data-color="sel-amber" onclick="btToggle(this)">ปานกลาง</span>
+              <span class="bt-tag" data-group="spring_volume" data-val="ต่ำ" data-color="sel-red" onclick="btToggle(this)">ต่ำ</span>
+            </div>
+          </div>
+        </div>
+        <div class="bt-row">
+          <div class="bt-field">
+            <div class="bt-label">BOS เกิดไหม</div>
+            <div class="bt-tags-wrap">
+              <span class="bt-tag" data-group="bos_occur" data-val="ใช่" data-color="sel-green" onclick="btToggle(this)">ใช่</span>
+              <span class="bt-tag" data-group="bos_occur" data-val="ไม่ใช่" data-color="sel-red" onclick="btToggle(this)">ไม่ใช่</span>
+            </div>
+          </div>
+          <div class="bt-field">
+            <div class="bt-label">Trigger</div>
+            <div class="bt-tags-wrap">
+              <span class="bt-tag" data-group="trigger" data-val="No Supply" data-color="sel-blue" onclick="btToggle(this)">No Supply</span>
+              <span class="bt-tag" data-group="trigger" data-val="LPS" data-color="sel-blue" onclick="btToggle(this)">LPS</span>
+              <span class="bt-tag" data-group="trigger" data-val="LPSY" data-color="sel-blue" onclick="btToggle(this)">LPSY</span>
+              <span class="bt-tag" data-group="trigger" data-val="Test" data-color="sel-blue" onclick="btToggle(this)">Test</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-divider"></div>
+
+    <!-- TRADE -->
+    <div class="bt-section">
+      <div class="bt-section-head">
+        <span class="bt-badge bt-badge-trade">Trade</span>
+        <span class="bt-section-title">ข้อมูลการเข้าเทรด</span>
+      </div>
+      <div class="bt-body">
+        <div class="form-grid-4">
+          <div class="fg"><label>Entry</label><input type="number" id="t-entry" placeholder="0.00" step="any" oninput="calcPrice()"></div>
+          <div class="fg"><label>SL</label><input type="number" id="t-sl" placeholder="0.00" step="any" oninput="calcPrice()"></div>
+          <div class="fg"><label>TP1</label><input type="number" id="t-tp" placeholder="0.00" step="any" oninput="calcPrice()"></div>
+          <div class="fg"><label>TP2</label><input type="number" id="t-tp2" placeholder="0.00" step="any" oninput="calcPrice()"></div>
+        </div>
+        <div class="form-grid">
+          <div class="fg"><label>Lot Size</label><input type="number" id="t-lot" placeholder="0.01" step="0.01" value="0.01" oninput="calcPrice()"></div>
+          <div class="fg"><label>Pip Value ($)</label><input type="number" id="t-pipval" value="10" step="any" oninput="calcPrice()" readonly style="color:var(--muted);"></div>
+        </div>
+        <div class="price-calc-result" id="price-calc">
+          <div class="calc-item"><div class="calc-label">R:R (TP1)</div><div class="calc-val" id="calc-rr" style="color:var(--blue);">—</div></div>
+          <div class="calc-item"><div class="calc-label">R:R (TP2)</div><div class="calc-val" id="calc-rr2" style="color:var(--blue);">—</div></div>
+          <div class="calc-item"><div class="calc-label">R Multiple</div><div class="calc-val" id="calc-rmul" style="color:var(--text);">—</div></div>
+          <div class="calc-item"><div class="calc-label">Profit TP1</div><div class="calc-val pos" id="calc-profit">—</div></div>
+          <div class="calc-item"><div class="calc-label">Loss ($)</div><div class="calc-val neg" id="calc-loss">—</div></div>
+          <div class="calc-item"><div class="calc-label">Actual P&amp;L</div><div class="calc-val" id="calc-pnl">—</div></div>
+        </div>
+      </div>
     </div>
 
     <!-- RESULT -->
-    <div class="fg" style="margin-bottom:14px;"><label>Result</label>
-      <div class="result-toggle">
-        <button class="result-btn win" id="res-win" onclick="setResult('win')">✅ Win</button>
-        <button class="result-btn loss" id="res-loss" onclick="setResult('loss')">❌ Loss</button>
-        <button class="result-btn be" id="res-be" onclick="setResult('be')">➡ BE</button>
+    <div class="bt-section">
+      <div class="bt-section-head">
+        <span class="bt-badge bt-badge-result">Result</span>
+        <span class="bt-section-title">ผลลัพธ์</span>
+      </div>
+      <div class="bt-body">
+        <div class="bt-row">
+          <div class="bt-field">
+            <div class="bt-label">ผล</div>
+            <div class="result-toggle" style="margin-bottom:0;">
+              <button class="result-btn win" id="res-win" onclick="setResult('win')">✅ ชนะ</button>
+              <button class="result-btn loss" id="res-loss" onclick="setResult('loss')">❌ แพ้</button>
+              <button class="result-btn be" id="res-be" onclick="setResult('be')">➡ BE</button>
+            </div>
+          </div>
+          <div class="bt-field">
+            <div class="bt-label">ถึง TP1 ไหม</div>
+            <div class="bt-tags-wrap">
+              <span class="bt-tag" data-group="tp1_hit" data-val="ใช่" data-color="sel-green" onclick="btToggle(this)">ใช่</span>
+              <span class="bt-tag" data-group="tp1_hit" data-val="ไม่ใช่" data-color="sel-red" onclick="btToggle(this)">ไม่ใช่</span>
+            </div>
+          </div>
+        </div>
+        <div class="bt-row">
+          <div class="bt-field">
+            <div class="bt-label">ออกที่ราคา (Exit)</div>
+            <input type="number" id="t-exit" placeholder="0.00" step="any" oninput="calcExitR()" style="background:var(--ink3);border:1px solid var(--line);color:var(--text);border-radius:var(--radius-sm);padding:7px 10px;font-size:12px;font-family:'DM Mono',monospace;outline:none;width:100%;">
+          </div>
+          <div class="bt-field">
+            <div class="bt-label">R ที่ได้จริง (คำนวณ)</div>
+            <div style="background:var(--ink3);border:1px solid var(--line);border-radius:var(--radius-sm);padding:7px 10px;font-size:13px;font-family:'DM Mono',monospace;font-weight:700;" id="calc-exit-r">—</div>
+          </div>
+        </div>
       </div>
     </div>
+
+    <!-- EXECUTION -->
+    <div class="bt-section">
+      <div class="bt-section-head">
+        <span class="bt-badge bt-badge-exec">Execution</span>
+      </div>
+      <div class="bt-body">
+        <div class="bt-row">
+          <div class="bt-field">
+            <div class="bt-label">ทำตาม Rule</div>
+            <div class="bt-tags-wrap">
+              <span class="bt-tag" data-group="follow_rule" data-val="ใช่" data-color="sel-green" onclick="btToggle(this)">ใช่</span>
+              <span class="bt-tag" data-group="follow_rule" data-val="ไม่ใช่" data-color="sel-red" onclick="btToggle(this)">ไม่ใช่</span>
+            </div>
+          </div>
+        </div>
+        <div class="bt-field">
+          <div class="bt-label">ถ้าไม่ใช่ — อธิบาย</div>
+          <input type="text" id="t-rule-break" placeholder="ผิด rule ตรงไหน..." style="background:var(--ink3);border:1px solid var(--line);color:var(--text);border-radius:var(--radius-sm);padding:7px 10px;font-size:12px;font-family:'Sora',sans-serif;outline:none;width:100%;">
+        </div>
+        <div class="bt-field">
+          <div class="bt-label">รู้สึกอะไรตอนเข้า</div>
+          <input type="text" id="t-emotion" placeholder="กลัว / มั่นใจ / รีบ / ลังเล..." style="background:var(--ink3);border:1px solid var(--line);color:var(--text);border-radius:var(--radius-sm);padding:7px 10px;font-size:12px;font-family:'Sora',sans-serif;outline:none;width:100%;">
+        </div>
+      </div>
+    </div>
+
+    <!-- ถ้าแพ้ -->
+    <div class="bt-section">
+      <div class="bt-section-head">
+        <span class="bt-badge bt-badge-loss">ถ้าแพ้ — ผิดตรงไหน</span>
+      </div>
+      <div class="bt-body">
+        <div class="bt-tags-wrap">
+          <span class="bt-tag" data-group="loss_reason" data-val="Phase อ่านผิด" data-color="sel-red" onclick="btMultiToggle(this)">Phase อ่านผิด</span>
+          <span class="bt-tag" data-group="loss_reason" data-val="Spring ไม่จริง" data-color="sel-red" onclick="btMultiToggle(this)">Spring ไม่จริง</span>
+          <span class="bt-tag" data-group="loss_reason" data-val="Volume ไม่ยืนยัน" data-color="sel-red" onclick="btMultiToggle(this)">Volume ไม่ยืนยัน</span>
+          <span class="bt-tag" data-group="loss_reason" data-val="HTF Bias ผิด" data-color="sel-red" onclick="btMultiToggle(this)">HTF Bias ผิด</span>
+          <span class="bt-tag" data-group="loss_reason" data-val="POI ไม่ Valid" data-color="sel-red" onclick="btMultiToggle(this)">POI ไม่ Valid</span>
+          <span class="bt-tag" data-group="loss_reason" data-val="Execute ผิด Rule" data-color="sel-red" onclick="btMultiToggle(this)">Execute ผิด Rule</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCREENSHOT -->
+    <div class="bt-section">
+      <div class="bt-section-head">
+        <span class="bt-badge bt-badge-kz">Screenshot</span>
+        <span class="bt-section-title">แนบรูปกราฟ</span>
+      </div>
+      <div class="bt-body">
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;">
+          <div class="screenshot-box">
+            <div class="ss-label">H4 ตอนเข้า</div>
+            <label for="ss-mtf-input">
+              <div class="ph" id="ss-mtf-ph"><span class="ph-icon">🖼</span>Upload</div>
+              <img id="ss-mtf-prev" style="display:none;" alt="H4">
+            </label>
+            <input type="file" id="ss-mtf-input" accept="image/*" style="display:none;" onchange="loadSS(event,'mtf')">
+            <button class="btn btn-ghost btn-xs" style="margin-top:5px;" onclick="clearSS('mtf')">✕</button>
+          </div>
+          <div class="screenshot-box">
+            <div class="ss-label">M15 ตอนเข้า</div>
+            <label for="ss-ltf-input">
+              <div class="ph" id="ss-ltf-ph"><span class="ph-icon">🖼</span>Upload</div>
+              <img id="ss-ltf-prev" style="display:none;" alt="M15 เข้า">
+            </label>
+            <input type="file" id="ss-ltf-input" accept="image/*" style="display:none;" onchange="loadSS(event,'ltf')">
+            <button class="btn btn-ghost btn-xs" style="margin-top:5px;" onclick="clearSS('ltf')">✕</button>
+          </div>
+          <div class="screenshot-box">
+            <div class="ss-label">M15 ตอนออก</div>
+            <label for="ss-exit-input">
+              <div class="ph" id="ss-exit-ph"><span class="ph-icon">🖼</span>Upload</div>
+              <img id="ss-exit-prev" style="display:none;" alt="M15 ออก">
+            </label>
+            <input type="file" id="ss-exit-input" accept="image/*" style="display:none;" onchange="loadSS(event,'exit')">
+            <button class="btn btn-ghost btn-xs" style="margin-top:5px;" onclick="clearSS('exit')">✕</button>
+          </div>
+        </div>
+        <div class="ss-url-row">
+          <div class="fg"><label>MTF URL</label><input type="text" id="t-url-mtf" placeholder="https://..."></div>
+          <div class="fg"><label>LTF URL</label><input type="text" id="t-url-ltf" placeholder="https://..."></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- NOTES -->
+    <div class="form-section-title">Notes</div>
+    <div class="fg" style="margin-bottom:12px;"><label>Reason / Analysis</label><textarea id="t-reason" placeholder="ทำไมถึงเข้าเทรดตรงนี้, bias คืออะไร..."></textarea></div>
+    <div class="fg" style="margin-bottom:12px;"><label>Lesson Learned</label><textarea id="t-lesson" placeholder="ได้เรียนรู้อะไร..."></textarea></div>
+
     <!-- Grade -->
-    <div class="fg" style="margin-bottom:0;">
+    <div class="fg" style="margin-bottom:16px;">
       <label>Setup Grade</label>
       <div style="display:flex;gap:6px;margin-top:4px;">
         <button class="result-btn" id="grade-A" onclick="setGrade('A')" style="flex:1;">🏆 A</button>
@@ -595,46 +843,6 @@ textarea{resize:vertical;min-height:70px;}
         <button class="result-btn" id="grade-C" onclick="setGrade('C')" style="flex:1;">⚠ C</button>
       </div>
     </div>
-
-    <div class="form-divider"></div>
-
-    <!-- 5. CHART SCREENSHOT -->
-    <div class="form-section-title">3 · Chart Screenshot</div>
-    <div class="screenshot-row">
-      <div class="screenshot-box">
-        <div class="ss-label">MTF Chart</div>
-        <label for="ss-mtf-input">
-          <div class="ph" id="ss-mtf-ph"><span class="ph-icon">🖼</span>Click to upload</div>
-          <img id="ss-mtf-prev" style="display:none;" alt="MTF">
-        </label>
-        <input type="file" id="ss-mtf-input" accept="image/*" style="display:none;" onchange="loadSS(event,'mtf')">
-        <div style="margin-top:6px;display:flex;gap:4px;">
-          <button class="btn btn-ghost btn-xs" onclick="clearSS('mtf')">✕</button>
-        </div>
-      </div>
-      <div class="screenshot-box">
-        <div class="ss-label">LTF Chart</div>
-        <label for="ss-ltf-input">
-          <div class="ph" id="ss-ltf-ph"><span class="ph-icon">🖼</span>Click to upload</div>
-          <img id="ss-ltf-prev" style="display:none;" alt="LTF">
-        </label>
-        <input type="file" id="ss-ltf-input" accept="image/*" style="display:none;" onchange="loadSS(event,'ltf')">
-        <div style="margin-top:6px;display:flex;gap:4px;">
-          <button class="btn btn-ghost btn-xs" onclick="clearSS('ltf')">✕</button>
-        </div>
-      </div>
-    </div>
-    <div class="ss-url-row">
-      <div class="fg"><label>MTF URL (TradingView)</label><input type="text" id="t-url-mtf" placeholder="https://..."></div>
-      <div class="fg"><label>LTF URL (TradingView)</label><input type="text" id="t-url-ltf" placeholder="https://..."></div>
-    </div>
-
-    <div class="form-divider"></div>
-
-    <!-- 6. NOTES -->
-    <div class="form-section-title">4 · Notes</div>
-    <div class="fg" style="margin-bottom:12px;"><label>Reason / Analysis</label><textarea id="t-reason" placeholder="ทำไมถึงเข้าเทรดตรงนี้, bias คืออะไร..."></textarea></div>
-    <div class="fg" style="margin-bottom:20px;"><label>Lesson Learned</label><textarea id="t-lesson" placeholder="ได้เรียนรู้อะไร..."></textarea></div>
 
     <div style="display:flex;gap:10px;">
       <button class="btn btn-gold" style="flex:1;justify-content:center;" onclick="saveTrade()">💾 บันทึก</button>
@@ -1947,146 +2155,111 @@ function gradeClass(g){return{A:'grade-A',B:'grade-B',C:'grade-C'}[g]||'grade-B'
 function showToast(msg,type='success'){const el=document.getElementById('toast');el.textContent=msg;el.className='toast '+type+' show';setTimeout(()=>el.classList.remove('show'),2500);}
 
 // ═══════════════════════════════════════════
-//  PRICE CALCULATOR
+//  BT TAG STATE
 // ═══════════════════════════════════════════
-function calcPrice() {
-  const entry=parseFloat(document.getElementById('t-entry').value);
-  const sl=parseFloat(document.getElementById('t-sl').value);
-  const tp=parseFloat(document.getElementById('t-tp').value);
-  const lot=parseFloat(document.getElementById('t-lot').value)||0.01;
-  const pipVal=10;
-  if(isNaN(entry)||isNaN(sl)||sl===entry){
-    ['calc-rr','calc-rmul','calc-profit','calc-loss','calc-pnl'].forEach(id=>document.getElementById(id).textContent='—');
-    return;
-  }
-  const riskPips=Math.abs(entry-sl);
-  const riskDollar=riskPips*pipVal*lot;
-  let rr='—',rmul='—',profit='—',loss='-$'+riskDollar.toFixed(2),pnl='—';
-  if(!isNaN(tp)&&tp!==entry){
-    const rewardPips=Math.abs(tp-entry);
-    const rewardDollar=rewardPips*pipVal*lot;
-    rr='1:'+(rewardPips/riskPips).toFixed(2);
-    rmul='+'+(rewardPips/riskPips).toFixed(2)+'R';
-    profit='+$'+rewardDollar.toFixed(2);
-    if(currentResult==='win')pnl=profit;
-    else if(currentResult==='loss')pnl=loss;
-    else pnl='$0 (BE)';
-  }
-  document.getElementById('calc-rr').textContent=rr;
-  document.getElementById('calc-rmul').textContent=rmul;
-  document.getElementById('calc-profit').textContent=profit;
-  document.getElementById('calc-loss').textContent=loss;
-  document.getElementById('calc-pnl').textContent=currentResult==='win'?profit:currentResult==='loss'?loss:'$0 (BE)';
+const BT_SINGLE=['kz','htf_bias','wyckoff_phase_h4','poi_type_sel','poi_type','poi_phase','spring_utad','spring_volume','bos_occur','trigger','tp1_hit','follow_rule'];
+let btData={};
+function btToggle(el){
+  const g=el.dataset.group,v=el.dataset.val,c=el.dataset.color;
+  if(BT_SINGLE.includes(g)){
+    document.querySelectorAll(`.bt-tag[data-group="${g}"]`).forEach(t=>{t.className='bt-tag';});
+    if(btData[g]===v){delete btData[g];}else{btData[g]=v;el.classList.add(c);}
+  } else {btMultiToggle(el);}
 }
-
-function getRMultiple() {
-  const entry=parseFloat(document.getElementById('t-entry').value);
-  const sl=parseFloat(document.getElementById('t-sl').value);
-  const tp=parseFloat(document.getElementById('t-tp').value);
-  if(isNaN(entry)||isNaN(sl)||isNaN(tp)||sl===entry)return null;
-  const riskPips=Math.abs(entry-sl);
-  const rewardPips=Math.abs(tp-entry);
-  const rr=rewardPips/riskPips;
-  if(currentResult==='win')return rr;
-  if(currentResult==='loss')return -1;
-  return 0;
+function btMultiToggle(el){
+  const g=el.dataset.group,v=el.dataset.val,c=el.dataset.color;
+  if(!Array.isArray(btData[g]))btData[g]=[];
+  const idx=btData[g].indexOf(v);
+  if(idx>=0){btData[g].splice(idx,1);el.className='bt-tag';}
+  else{btData[g].push(v);el.classList.add(c);}
 }
-function getPnlDollar() {
-  const entry=parseFloat(document.getElementById('t-entry').value);
-  const sl=parseFloat(document.getElementById('t-sl').value);
-  const tp=parseFloat(document.getElementById('t-tp').value);
-  const lot=parseFloat(document.getElementById('t-lot').value)||0.01;
-  const pipVal=10;
-  if(isNaN(entry)||isNaN(sl)||sl===entry)return null;
-  const riskPips=Math.abs(entry-sl);
-  const riskDollar=riskPips*pipVal*lot;
-  if(currentResult==='win'){if(isNaN(tp)||tp===entry)return null;const rewardPips=Math.abs(tp-entry);return rewardPips*pipVal*lot;}
-  if(currentResult==='loss')return -riskDollar;
-  return 0;
-}
-
-// ═══════════════════════════════════════════
-//  DIRECTION / RESULT / GRADE TOGGLES
-// ═══════════════════════════════════════════
-function setDir(d){
-  currentDir=d;
-  document.getElementById('dir-long').classList.toggle('active',d==='Long');
-  document.getElementById('dir-long').classList.toggle('win',d==='Long');
-  document.getElementById('dir-short').classList.toggle('active',d==='Short');
-  document.getElementById('dir-short').classList.toggle('loss',d==='Short');
-}
-function setResult(r){
-  currentResult=r;
-  ['win','loss','be'].forEach(x=>{const el=document.getElementById('res-'+x);el.classList.toggle('active',x===r);});
-  calcPrice();
-}
-function setGrade(g){
-  currentGrade=g;
-  ['A','B','C'].forEach(x=>{
-    const el=document.getElementById('grade-'+x);
-    el.classList.remove('active','win','loss','be');
-    if(x===g){el.classList.add('active');el.classList.add(x==='A'?'win':x==='C'?'loss':'be');}
+function btSetTag(group,val){
+  if(!val)return;
+  btData[group]=val;
+  document.querySelectorAll(`.bt-tag[data-group="${group}"]`).forEach(t=>{
+    t.className='bt-tag';
+    if(t.dataset.val===val)t.classList.add(t.dataset.color);
   });
 }
-
+function btSetMulti(group,vals){
+  if(!vals||!vals.length)return;
+  btData[group]=vals;
+  document.querySelectorAll(`.bt-tag[data-group="${group}"]`).forEach(t=>{
+    t.className='bt-tag';
+    if(vals.includes(t.dataset.val))t.classList.add(t.dataset.color);
+  });
+}
+function btClearAll(){
+  btData={};
+  document.querySelectorAll('.bt-tag').forEach(t=>{t.className='bt-tag';});
+}
 
 // ═══════════════════════════════════════════
 //  PRICE CALCULATOR
 // ═══════════════════════════════════════════
-function calcPrice() {
-  const entry=parseFloat(document.getElementById('t-entry').value);
-  const sl=parseFloat(document.getElementById('t-sl').value);
-  const tp=parseFloat(document.getElementById('t-tp').value);
-  const lot=parseFloat(document.getElementById('t-lot').value)||0.01;
+function calcExitR(){
+  const entry=parseFloat(document.getElementById('t-entry')?.value);
+  const sl=parseFloat(document.getElementById('t-sl')?.value);
+  const exit=parseFloat(document.getElementById('t-exit')?.value);
+  const el=document.getElementById('calc-exit-r');
+  if(!el)return;
+  if(isNaN(entry)||isNaN(sl)||isNaN(exit)||sl===entry){el.textContent='—';el.style.color='var(--muted)';return;}
+  const r=(exit-entry)/Math.abs(entry-sl);
+  el.textContent=(r>=0?'+':'')+r.toFixed(2)+'R';
+  el.style.color=r>0?'var(--green)':r<0?'var(--red)':'var(--muted)';
+}
+function calcPrice(){
+  const entry=parseFloat(document.getElementById('t-entry')?.value);
+  const sl=parseFloat(document.getElementById('t-sl')?.value);
+  const tp=parseFloat(document.getElementById('t-tp')?.value);
+  const tp2=parseFloat(document.getElementById('t-tp2')?.value);
+  const lot=parseFloat(document.getElementById('t-lot')?.value)||0.01;
   const pipVal=10;
-  if(isNaN(entry)||isNaN(sl)||sl===entry){
-    ['calc-rr','calc-rmul','calc-profit','calc-loss','calc-pnl'].forEach(id=>document.getElementById(id).textContent='—');
-    return;
-  }
+  const clearIds=['calc-rr','calc-rr2','calc-rmul','calc-profit','calc-loss','calc-pnl'];
+  if(isNaN(entry)||isNaN(sl)||sl===entry){clearIds.forEach(id=>{const e=document.getElementById(id);if(e)e.textContent='—';});return;}
   const riskPips=Math.abs(entry-sl);
   const riskDollar=riskPips*pipVal*lot;
-  let rr='—',rmul='—',profit='—',loss='-$'+riskDollar.toFixed(2),pnl='—';
+  const lossEl=document.getElementById('calc-loss');if(lossEl)lossEl.textContent='-$'+riskDollar.toFixed(2);
+  let profit='—';
   if(!isNaN(tp)&&tp!==entry){
     const rewardPips=Math.abs(tp-entry);
-    const rewardDollar=rewardPips*pipVal*lot;
-    rr='1:'+(rewardPips/riskPips).toFixed(2);
-    rmul='+'+(rewardPips/riskPips).toFixed(2)+'R';
-    profit='+$'+rewardDollar.toFixed(2);
-    if(currentResult==='win')pnl=profit;
-    else if(currentResult==='loss')pnl=loss;
-    else pnl='$0 (BE)';
+    const rr='1:'+(rewardPips/riskPips).toFixed(2);
+    const rmul='+'+(rewardPips/riskPips).toFixed(2)+'R';
+    profit='+$'+(rewardPips*pipVal*lot).toFixed(2);
+    const rrEl=document.getElementById('calc-rr');if(rrEl)rrEl.textContent=rr;
+    const rmulEl=document.getElementById('calc-rmul');if(rmulEl)rmulEl.textContent=rmul;
+    const profEl=document.getElementById('calc-profit');if(profEl)profEl.textContent=profit;
+    const pnlEl=document.getElementById('calc-pnl');if(pnlEl)pnlEl.textContent=currentResult==='win'?profit:currentResult==='loss'?'-$'+riskDollar.toFixed(2):'$0 (BE)';
   }
-  document.getElementById('calc-rr').textContent=rr;
-  document.getElementById('calc-rmul').textContent=rmul;
-  document.getElementById('calc-profit').textContent=profit;
-  document.getElementById('calc-loss').textContent=loss;
-  document.getElementById('calc-pnl').textContent=currentResult==='win'?profit:currentResult==='loss'?loss:'$0 (BE)';
+  if(!isNaN(tp2)&&tp2!==entry){
+    const r2='1:'+(Math.abs(tp2-entry)/riskPips).toFixed(2);
+    const rr2El=document.getElementById('calc-rr2');if(rr2El)rr2El.textContent=r2;
+  }
+  calcExitR();
 }
-
-function getRMultiple() {
-  const entry=parseFloat(document.getElementById('t-entry').value);
-  const sl=parseFloat(document.getElementById('t-sl').value);
-  const tp=parseFloat(document.getElementById('t-tp').value);
-  if(isNaN(entry)||isNaN(sl)||isNaN(tp)||sl===entry)return null;
-  const riskPips=Math.abs(entry-sl);
-  const rewardPips=Math.abs(tp-entry);
-  const rr=rewardPips/riskPips;
-  if(currentResult==='win')return rr;
-  if(currentResult==='loss')return -1;
-  return 0;
+function getRMultiple(){
+  const entry=parseFloat(document.getElementById('t-entry')?.value);
+  const sl=parseFloat(document.getElementById('t-sl')?.value);
+  const exit=parseFloat(document.getElementById('t-exit')?.value);
+  const tp=parseFloat(document.getElementById('t-tp')?.value);
+  if(isNaN(entry)||isNaN(sl)||sl===entry)return null;
+  const risk=Math.abs(entry-sl);
+  if(!isNaN(exit))return (exit-entry)/risk;
+  if(!isNaN(tp)){if(currentResult==='win')return Math.abs(tp-entry)/risk;if(currentResult==='loss')return -1;return 0;}
+  return null;
 }
-function getPnlDollar() {
-  const entry=parseFloat(document.getElementById('t-entry').value);
-  const sl=parseFloat(document.getElementById('t-sl').value);
-  const tp=parseFloat(document.getElementById('t-tp').value);
-  const lot=parseFloat(document.getElementById('t-lot').value)||0.01;
+function getPnlDollar(){
+  const entry=parseFloat(document.getElementById('t-entry')?.value);
+  const sl=parseFloat(document.getElementById('t-sl')?.value);
+  const exit=parseFloat(document.getElementById('t-exit')?.value);
+  const tp=parseFloat(document.getElementById('t-tp')?.value);
+  const lot=parseFloat(document.getElementById('t-lot')?.value)||0.01;
   const pipVal=10;
   if(isNaN(entry)||isNaN(sl)||sl===entry)return null;
-  const riskPips=Math.abs(entry-sl);
-  const riskDollar=riskPips*pipVal*lot;
-  if(currentResult==='win'){if(isNaN(tp)||tp===entry)return null;const rewardPips=Math.abs(tp-entry);return rewardPips*pipVal*lot;}
-  if(currentResult==='loss')return -riskDollar;
-  return 0;
+  const riskDollar=Math.abs(entry-sl)*pipVal*lot;
+  if(!isNaN(exit))return (exit-entry)*pipVal*lot;
+  if(!isNaN(tp)){if(currentResult==='win')return Math.abs(tp-entry)*pipVal*lot;if(currentResult==='loss')return -riskDollar;return 0;}
+  return null;
 }
 
 
@@ -2095,10 +2268,10 @@ function getPnlDollar() {
 // ═══════════════════════════════════════════
 function setDir(d){
   currentDir=d;
-  document.getElementById('dir-long').classList.toggle('active',d==='Long');
-  document.getElementById('dir-long').classList.toggle('win',d==='Long');
-  document.getElementById('dir-short').classList.toggle('active',d==='Short');
-  document.getElementById('dir-short').classList.toggle('loss',d==='Short');
+  const buyBtn=document.getElementById('dir-long');
+  const sellBtn=document.getElementById('dir-short');
+  if(buyBtn){buyBtn.classList.toggle('active',d==='Long');}
+  if(sellBtn){sellBtn.classList.toggle('active',d==='Short');}
 }
 function setResult(r){
   currentResult=r;
@@ -2326,33 +2499,38 @@ function openTradeModal(id=null){
   document.getElementById('t-delete-btn').style.display=id?'inline-flex':'none';
   renderSymbolPool(t?.symbol||getSymbols()[0]||'');
   if(t?.symbol) selectSymbol(t.symbol);
-  document.getElementById('mtf-setup-name').value=t?.mtf_setup_name||'';
-  loadPresetDatalist();
-  document.getElementById('htf-tf').value=t?.htf_tf||'';
-  document.getElementById('htf-trend').value=t?.htf_trend||'';
-  document.getElementById('mtf-tf').value=t?.mtf_tf||'';
-  renderSessionTags(t?.mtf_sessions||[]);
-  document.getElementById('ltf-tf').value=t?.ltf_tf||'';
+  // new bt fields
+  btClearAll();
+  btData={};
+  ['kz','htf_bias','wyckoff_phase_h4','poi_type_sel','poi_type','poi_phase','spring_utad','spring_volume','bos_occur','trigger','tp1_hit','follow_rule'].forEach(g=>{
+    if(t?.[g]) btSetTag(g, t[g]);
+  });
+  if(t?.loss_reason) btSetMulti('loss_reason', t.loss_reason);
+  document.getElementById('t-bsl').value=t?.bsl||'';
+  document.getElementById('t-ssl').value=t?.ssl||'';
+  document.getElementById('t-exit').value=t?.exit_price||'';
+  document.getElementById('t-rule-break').value=t?.rule_break||'';
+  document.getElementById('t-emotion').value=t?.emotion||'';
+  // base fields
   document.getElementById('t-entry').value=t?.entry||'';
   document.getElementById('t-sl').value=t?.sl||'';
   document.getElementById('t-tp').value=t?.tp||'';
+  document.getElementById('t-tp2').value=t?.tp2||'';
   document.getElementById('t-lot').value=t?.lot||'0.01';
   document.getElementById('t-reason').value=t?.reason||'';
   document.getElementById('t-lesson').value=t?.lesson||'';
   document.getElementById('t-url-mtf').value=t?.url_mtf||'';
   document.getElementById('t-url-ltf').value=t?.url_ltf||'';
-  ssData={mtf:t?.ss_mtf||null,ltf:t?.ss_ltf||null};
-  ['mtf','ltf'].forEach(ctx=>{
+  ssData={mtf:t?.ss_mtf||null,ltf:t?.ss_ltf||null,exit:t?.ss_exit||null};
+  ['mtf','ltf','exit'].forEach(ctx=>{
     const prev=document.getElementById('ss-'+ctx+'-prev'),ph=document.getElementById('ss-'+ctx+'-ph');
+    if(!prev||!ph)return;
     if(ssData[ctx]){prev.src=ssData[ctx];prev.style.display='block';ph.style.display='none';}
     else{prev.style.display='none';ph.style.display='block';}
   });
-  selectedTags={mtf:t?.mtf_tags||[],ltf:t?.ltf_tags||[]};
   setDir(t?.dir||'Long');
   setResult(t?.result||'win');
   setGrade(t?.grade||'B');
-  renderTagContainer('mtf','mtf-tags-container');
-  renderTagContainer('ltf','ltf-tags-container');
   calcPrice();
   document.getElementById('tradeOverlay').classList.add('show');
 }
@@ -2364,28 +2542,42 @@ async function saveTrade(){
   const entry=parseFloat(document.getElementById('t-entry').value)||null;
   const sl=parseFloat(document.getElementById('t-sl').value)||null;
   const tp=parseFloat(document.getElementById('t-tp').value)||null;
+  const tp2=parseFloat(document.getElementById('t-tp2').value)||null;
   const lot=parseFloat(document.getElementById('t-lot').value)||0.01;
+  const exit_price=parseFloat(document.getElementById('t-exit').value)||null;
   const rmul=getRMultiple();
   const pnl=getPnlDollar();
   const payload={
     account_id:currentAccount.id,
     symbol:sym,
     dir:currentDir,
-    htf_tf:document.getElementById('htf-tf').value,
-    htf_trend:document.getElementById('htf-trend').value,
-    mtf_tf:document.getElementById('mtf-tf').value,
-    mtf_setup_name:document.getElementById('mtf-setup-name').value.trim(),
-    mtf_session:getSessionLabels().join(', '),
-    mtf_sessions:selectedSessions,
-    mtf_tags:selectedTags.mtf,
-    ltf_tf:document.getElementById('ltf-tf').value,
-    ltf_tags:selectedTags.ltf,
-    entry,sl,tp,lot,
+    // new backtest fields
+    kz:btData.kz||null,
+    htf_bias:btData.htf_bias||null,
+    wyckoff_phase_h4:btData.wyckoff_phase_h4||null,
+    bsl:document.getElementById('t-bsl').value.trim()||null,
+    ssl:document.getElementById('t-ssl').value.trim()||null,
+    poi_type_sel:btData.poi_type_sel||null,
+    poi_type:btData.poi_type||null,
+    poi_phase:btData.poi_phase||null,
+    spring_utad:btData.spring_utad||null,
+    spring_volume:btData.spring_volume||null,
+    bos_occur:btData.bos_occur||null,
+    trigger:btData.trigger||null,
+    tp1_hit:btData.tp1_hit||null,
+    exit_price,
+    follow_rule:btData.follow_rule||null,
+    rule_break:document.getElementById('t-rule-break').value.trim()||null,
+    emotion:document.getElementById('t-emotion').value.trim()||null,
+    loss_reason:btData.loss_reason||[],
+    // base fields
+    entry,sl,tp,tp2,lot,
     rmul,pnl,
     result:currentResult,
     grade:currentGrade,
     ss_mtf:ssData.mtf,
     ss_ltf:ssData.ltf,
+    ss_exit:ssData.exit,
     url_mtf:document.getElementById('t-url-mtf').value.trim(),
     url_ltf:document.getElementById('t-url-ltf').value.trim(),
     reason:document.getElementById('t-reason').value.trim(),
@@ -2416,134 +2608,182 @@ async function deleteTrade(){
 // ═══════════════════════════════════════════
 function openDetail(id){
   const t=trades.find(x=>x.id===id);if(!t)return;
-  const mtfLib=getTagLib('mtf'),ltfLib=getTagLib('ltf');
-  const mtfLabels=(t.mtf_tags||[]).map(id=>{const tg=mtfLib.find(x=>x.id===id);return tg?{label:tg.label,cat:tg.cat}:null;}).filter(Boolean);
-  const ltfLabels=(t.ltf_tags||[]).map(id=>{const tg=ltfLib.find(x=>x.id===id);return tg?{label:tg.label,cat:tg.cat}:null;}).filter(Boolean);
-
-  const catColor={wyckoff:'#a78bfa',smc:'#4d8eff',poi:'#fb923c',pa:'#2dce78',fibo:'#f5c842',other:'#6b7591'};
-  const catBg={wyckoff:'#1e1a3a',smc:'#172535',poi:'#2a1a0a',pa:'#1a2e1a',fibo:'#2a2410',other:'#1a1a1a'};
-
-  function tagHtml(arr){
-    return arr.map(tg=>{
-      const c=catColor[tg.cat]||'#6b7591';
-      const b=catBg[tg.cat]||'#1a1a1a';
-      return `<span style="font-size:11px;padding:3px 9px;border-radius:20px;background:${b};color:${c};border:0.5px solid ${c}55;">${tg.label}</span>`;
-    }).join('');
-  }
 
   const pnlColor=t.pnl>0?'#2dce78':t.pnl<0?'#ff4d6a':'var(--muted)';
   const rColor=t.rmul>0?'#2dce78':t.rmul<0?'#ff4d6a':'var(--muted)';
-  const resultBg=t.result==='win'?'background:#1a3a2a;color:#2dce78;':t.result==='loss'?'background:#3a1a1a;color:#ff4d6a;':'background:#2a2a2a;color:#aaa;';
-  const resultLabel=t.result==='win'?'Win':t.result==='loss'?'Loss':'BE';
-  const dirLabel=t.dir||'—';
-  const gradeLabel=t.grade||'—';
+  const isWin=t.result==='win',isLoss=t.result==='loss';
+  const resultBg=isWin?'background:#1a3a2a;color:#2dce78;border:1px solid #2dce78;':isLoss?'background:#3a1a1a;color:#ff4d6a;border:1px solid #ff4d6a;':'background:#2a2a2a;color:#aaa;border:1px solid #444;';
+  const resultLabel=isWin?'ชนะ':isLoss?'แพ้':'BE';
+  const dirColor=t.dir==='Long'?'#2dce78':'#ff4d6a';
+  const dirBg=t.dir==='Long'?'#1a3a2a':'#3a1a1a';
+  const dirBorder=t.dir==='Long'?'#2dce78':'#ff4d6a';
+  const dirIcon=t.dir==='Long'?'▲':'▼';
 
-  const rr=t.entry&&t.sl&&t.tp?'1:'+(Math.abs(t.tp-t.entry)/Math.abs(t.sl-t.entry)).toFixed(2):'—';
+  const rr1=t.entry&&t.sl&&t.tp?'1:'+(Math.abs(t.tp-t.entry)/Math.abs(t.sl-t.entry)).toFixed(2):'—';
+  const rr2=t.entry&&t.sl&&t.tp2?'1:'+(Math.abs(t.tp2-t.entry)/Math.abs(t.sl-t.entry)).toFixed(2):'—';
 
-  const ssHtml=`
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
-      ${t.ss_mtf?`<div>
-        <div style="font-size:9px;color:#4d8eff;font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:1px;margin-bottom:5px;">MTF Chart</div>
-        <img src="${t.ss_mtf}" style="width:100%;border-radius:8px;cursor:zoom-in;object-fit:cover;max-height:180px;" onclick="openLightbox('${t.ss_mtf}','MTF Chart')" title="คลิกเพื่อขยาย">
-      </div>`:`<div style="background:var(--ink3);border-radius:8px;height:140px;display:flex;align-items:center;justify-content:center;border:1px dashed var(--line);">
-        <div style="text-align:center;color:var(--dim);font-size:11px;">MTF<br>ไม่มีรูป</div>
-      </div>`}
-      ${t.ss_ltf?`<div>
-        <div style="font-size:9px;color:#2dce78;font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:1px;margin-bottom:5px;">LTF Chart</div>
-        <img src="${t.ss_ltf}" style="width:100%;border-radius:8px;cursor:zoom-in;object-fit:cover;max-height:180px;" onclick="openLightbox('${t.ss_ltf}','LTF Chart')" title="คลิกเพื่อขยาย">
-      </div>`:`<div style="background:var(--ink3);border-radius:8px;height:140px;display:flex;align-items:center;justify-content:center;border:1px dashed var(--line);">
-        <div style="text-align:center;color:var(--dim);font-size:11px;">LTF<br>ไม่มีรูป</div>
-      </div>`}
-    </div>`;
-
-  const urlHtml=`${t.url_mtf?`<a href="${t.url_mtf}" target="_blank" style="color:#4d8eff;font-size:11px;display:inline-flex;align-items:center;gap:4px;margin-bottom:4px;">🔗 MTF Chart Link</a><br>`:''}
-    ${t.url_ltf?`<a href="${t.url_ltf}" target="_blank" style="color:#2dce78;font-size:11px;display:inline-flex;align-items:center;gap:4px;">🔗 LTF Chart Link</a>`:''}`;
-
+  function pill(val,color='#6b7591',bg='rgba(107,117,145,.15)'){
+    if(!val)return '';
+    return `<span style="font-size:10px;font-weight:600;padding:2px 9px;border-radius:20px;background:${bg};color:${color};border:1px solid ${color}55;">${val}</span>`;
+  }
+  function infoSection(title){
+    return `<div style="font-size:9px;color:var(--dim);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:1.5px;margin:16px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--line);">${title}</div>`;
+  }
   function infoRow(label,val,valStyle=''){
-    return `<div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--line);">
+    if(!val&&val!==0)return '';
+    return `<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid #141c2e;">
       <span style="font-size:12px;color:var(--muted);">${label}</span>
-      <span style="font-size:12px;font-weight:600;${valStyle}">${val||'—'}</span>
+      <span style="font-size:12px;font-weight:600;font-family:'DM Mono',monospace;${valStyle}">${val}</span>
     </div>`;
   }
 
+  // screenshots 3 cols
+  function ssBox(src,label,color){
+    if(src) return `<div>
+      <div style="font-size:9px;color:${color};font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:1px;margin-bottom:5px;">${label}</div>
+      <img src="${src}" style="width:100%;border-radius:8px;cursor:zoom-in;object-fit:cover;max-height:160px;" onclick="openLightbox('${src}','${label}')" title="คลิกเพื่อขยาย">
+    </div>`;
+    return `<div>
+      <div style="font-size:9px;color:var(--dim);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:1px;margin-bottom:5px;">${label}</div>
+      <div style="background:var(--ink3);border-radius:8px;height:110px;display:flex;align-items:center;justify-content:center;border:1px dashed var(--line);">
+        <div style="text-align:center;color:var(--dim);font-size:10px;">ไม่มีรูป</div>
+      </div>
+    </div>`;
+  }
+
+  // left col tags rows
+  function tagRow(icon,labelText,...vals){
+    const content=vals.filter(Boolean).join(' ');
+    if(!content)return '';
+    return `<div style="display:flex;align-items:center;gap:6px;margin-bottom:7px;flex-wrap:wrap;">
+      <span style="font-size:12px;width:18px;text-align:center;">${icon}</span>
+      <span style="font-size:9px;color:var(--dim);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.5px;width:62px;flex-shrink:0;">${labelText}</span>
+      ${content}
+    </div>`;
+  }
+
+  const lossReasons=(t.loss_reason||[]);
+
   document.getElementById('detail-title').textContent='';
   document.getElementById('detail-body').innerHTML=`
-    <!-- Header -->
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;">
-      <div style="display:flex;align-items:center;gap:10px;">
-        <div style="width:36px;height:36px;border-radius:8px;background:var(--ink3);display:flex;align-items:center;justify-content:center;font-size:16px;">📊</div>
-        <div>
-          <div style="font-size:18px;font-weight:700;color:var(--bright);">${t.symbol||'—'}</div>
-          <div style="font-size:11px;color:var(--muted);">Trade detail</div>
-        </div>
+    <!-- ── MODAL TOP BAR ── -->
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span style="font-size:16px;font-weight:700;color:var(--bright);">${t.symbol||'—'}</span>
+        <span style="font-size:10px;font-weight:700;padding:3px 10px;border-radius:6px;background:${dirBg};color:${dirColor};border:1px solid ${dirBorder};">${dirIcon} ${t.dir==='Long'?'BUY':'SELL'}</span>
+        <span style="font-size:11px;color:var(--dim);">${t.created_at?t.created_at.slice(0,10):''}</span>
       </div>
       <div style="display:flex;align-items:center;gap:6px;">
-        <span style="font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;${resultBg}">${resultLabel}</span>
-        <span style="font-size:10px;padding:3px 10px;border-radius:20px;background:var(--ink3);color:var(--muted);">${dirLabel}</span>
-        <span style="font-size:10px;padding:3px 10px;border-radius:20px;background:var(--ink3);color:var(--gold);">Grade ${gradeLabel}</span>
+        <span style="font-size:10px;font-weight:700;padding:3px 12px;border-radius:20px;${resultBg}">${resultLabel}</span>
+        <span style="font-size:20px;font-weight:700;font-family:'DM Mono',monospace;color:${pnlColor};">${t.pnl!==null?(t.pnl>=0?'+$':'-$')+Math.abs(t.pnl).toFixed(2):'—'}</span>
       </div>
     </div>
 
-    <!-- 2-col layout -->
-    <div style="display:grid;grid-template-columns:1fr 280px;gap:20px;">
+    <!-- ── 2-COL BODY ── -->
+    <div style="display:grid;grid-template-columns:1fr 290px;gap:18px;">
 
-      <!-- LEFT -->
+      <!-- ════ LEFT ════ -->
       <div>
-        ${ssHtml}
-        ${urlHtml}
-
-        ${mtfLabels.length?`<div style="margin-top:14px;">
-          <div style="font-size:9px;color:#4d8eff;font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:1px;margin-bottom:7px;">MTF Setup Tags</div>
-          <div style="display:flex;flex-wrap:wrap;gap:5px;">${tagHtml(mtfLabels)}</div>
+        <!-- Screenshots 3-col -->
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;">
+          ${ssBox(t.ss_mtf,'H4 ตอนเข้า','#4d8eff')}
+          ${ssBox(t.ss_ltf,'M15 ตอนเข้า','#2dce78')}
+          ${ssBox(t.ss_exit,'M15 ตอนออก','#fb923c')}
+        </div>
+        ${t.url_mtf||t.url_ltf?`<div style="margin-bottom:10px;">
+          ${t.url_mtf?`<a href="${t.url_mtf}" target="_blank" style="color:#4d8eff;font-size:11px;margin-right:12px;">🔗 H4 Link</a>`:''}
+          ${t.url_ltf?`<a href="${t.url_ltf}" target="_blank" style="color:#2dce78;font-size:11px;">🔗 M15 Link</a>`:''}
         </div>`:''}
 
-        ${ltfLabels.length?`<div style="margin-top:10px;">
-          <div style="font-size:9px;color:#2dce78;font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:1px;margin-bottom:7px;">LTF Confirmation</div>
-          <div style="display:flex;flex-wrap:wrap;gap:5px;">${tagHtml(ltfLabels)}</div>
-        </div>`:''}
+        <!-- Tags summary -->
+        <div style="margin-bottom:4px;">
+          ${tagRow('⚡','Kill Zone', pill(t.kz,'#4d8eff','rgba(77,142,255,.15)'))}
+          ${tagRow('📊','HTF Bias', pill(t.htf_bias, t.htf_bias==='Bullish'?'#2dce78':t.htf_bias==='Bearish'?'#ff4d6a':'#6b7591', t.htf_bias==='Bullish'?'rgba(45,206,120,.15)':t.htf_bias==='Bearish'?'rgba(255,77,106,.15)':'rgba(107,117,145,.15)'))}
+          ${tagRow('🔷','Wyckoff H4', pill(t.wyckoff_phase_h4,'#a78bfa','rgba(167,139,250,.15)'))}
+          ${tagRow('🎯','POI', pill(t.poi_type_sel,'#fb923c','rgba(251,146,60,.15)'), pill(t.poi_type,'#f5c842','rgba(245,200,66,.15)'))}
+          ${tagRow('🌊','At POI', pill(t.poi_phase,'#2dce78','rgba(45,206,120,.15)'), pill(t.spring_utad==='ใช่'?'Spring ✓':t.spring_utad==='ไม่ใช่'?'No Spring':null,'#2dce78','rgba(45,206,120,.15)'), pill(t.trigger,'#4d8eff','rgba(77,142,255,.15)'))}
+          ${tagRow('📦','Volume', pill(t.spring_volume, t.spring_volume==='สูง'?'#2dce78':t.spring_volume==='ต่ำ'?'#ff4d6a':'#f5c842', t.spring_volume==='สูง'?'rgba(45,206,120,.15)':t.spring_volume==='ต่ำ'?'rgba(255,77,106,.15)':'rgba(245,200,66,.15)'))}
+          ${tagRow('💥','BOS', pill(t.bos_occur==='ใช่'?'BOS ✓':'No BOS', t.bos_occur==='ใช่'?'#2dce78':'#ff4d6a', t.bos_occur==='ใช่'?'rgba(45,206,120,.15)':'rgba(255,77,106,.15)'))}
+          ${tagRow('📋','Exec', pill(t.follow_rule==='ใช่'?'ตาม Rule ✓':'ผิด Rule', t.follow_rule==='ใช่'?'#2dce78':'#ff4d6a', t.follow_rule==='ใช่'?'rgba(45,206,120,.15)':'rgba(255,77,106,.15)'))}
+        </div>
 
-        ${t.reason?`<div style="margin-top:14px;padding:12px;background:var(--ink3);border-radius:8px;border-left:3px solid var(--dim);">
-          <div style="font-size:9px;color:var(--muted);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:1px;margin-bottom:5px;">Reason</div>
+        ${t.emotion?`<div style="margin-top:10px;padding:11px 13px;background:var(--ink3);border-radius:8px;border-left:3px solid var(--dim);">
+          <div style="font-size:9px;color:var(--dim);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">รู้สึกอะไรตอนเข้า</div>
+          <div style="font-size:12px;color:var(--text);">${t.emotion}</div>
+        </div>`:''}
+        ${t.rule_break?`<div style="margin-top:8px;padding:11px 13px;background:#3a1a1a33;border-radius:8px;border-left:3px solid var(--red);">
+          <div style="font-size:9px;color:var(--red);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">ผิด Rule ตรงไหน</div>
+          <div style="font-size:12px;color:var(--text);">${t.rule_break}</div>
+        </div>`:''}
+        ${lossReasons.length?`<div style="margin-top:8px;padding:11px 13px;background:#3a1a1a33;border-radius:8px;border-left:3px solid var(--red);">
+          <div style="font-size:9px;color:var(--red);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">ผิดตรงไหน</div>
+          <div style="display:flex;flex-wrap:wrap;gap:5px;">${lossReasons.map(r=>pill(r,'#ff4d6a','rgba(255,77,106,.15)')).join('')}</div>
+        </div>`:''}
+        ${t.reason?`<div style="margin-top:8px;padding:11px 13px;background:var(--ink3);border-radius:8px;border-left:3px solid var(--dim);">
+          <div style="font-size:9px;color:var(--muted);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Reason / Analysis</div>
           <div style="font-size:12px;color:var(--text);line-height:1.6;">${t.reason}</div>
         </div>`:''}
-
-        ${t.lesson?`<div style="margin-top:10px;padding:12px;background:var(--ink3);border-radius:8px;border-left:3px solid var(--gold);">
-          <div style="font-size:9px;color:var(--gold);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:1px;margin-bottom:5px;">Lesson Learned</div>
+        ${t.lesson?`<div style="margin-top:8px;padding:11px 13px;background:var(--ink3);border-radius:8px;border-left:3px solid var(--gold);">
+          <div style="font-size:9px;color:var(--gold);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Lesson Learned</div>
           <div style="font-size:12px;color:var(--text);line-height:1.6;">${t.lesson}</div>
         </div>`:''}
       </div>
 
-      <!-- RIGHT -->
+      <!-- ════ RIGHT ════ -->
       <div>
-        <!-- R + PnL cards -->
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px;">
-          <div style="background:var(--ink3);border-radius:8px;padding:12px;text-align:center;">
-            <div style="font-size:9px;color:var(--muted);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:1px;margin-bottom:5px;">R Multiple</div>
-            <div style="font-size:20px;font-weight:700;font-family:'DM Mono',monospace;color:${rColor};">${t.rmul!==null?((t.rmul>=0?'+':'')+parseFloat(t.rmul).toFixed(2)+'R'):'—'}</div>
+        <!-- Result banner -->
+        <div style="${isWin?'background:#1a3a2a;border:1px solid #2dce78;':isLoss?'background:#3a1a1a;border:1px solid #ff4d6a;':'background:#2a2a2a;border:1px solid #444;'}border-radius:8px;padding:12px 14px;display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+          <div>
+            <div style="font-size:14px;font-weight:700;color:${isWin?'#2dce78':isLoss?'#ff4d6a':'#aaa'};">${resultLabel}</div>
+            ${t.exit_price?`<div style="font-size:10px;color:${isWin?'#1fa85a':isLoss?'#c73a55':'#666'};margin-top:2px;">ออกที่ ${t.exit_price}${t.tp1_hit==='ใช่'?' · ถึง TP1':''}</div>`:''}
           </div>
-          <div style="background:var(--ink3);border-radius:8px;padding:12px;text-align:center;">
-            <div style="font-size:9px;color:var(--muted);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:1px;margin-bottom:5px;">P&L</div>
-            <div style="font-size:20px;font-weight:700;font-family:'DM Mono',monospace;color:${pnlColor};">${t.pnl!==null?(t.pnl>=0?'+$':'-$')+Math.abs(t.pnl).toFixed(2):'—'}</div>
+          <div style="font-size:22px;font-weight:700;font-family:'DM Mono',monospace;color:${rColor};">${t.rmul!==null?((t.rmul>=0?'+':'')+parseFloat(t.rmul).toFixed(2)+'R'):'—'}</div>
+        </div>
+
+        <!-- Calc mini -->
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:16px;">
+          <div style="background:var(--ink3);border-radius:6px;padding:8px 10px;border:1px solid var(--line);">
+            <div style="font-size:9px;color:var(--dim);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px;">R:R TP1</div>
+            <div style="font-size:13px;font-weight:700;font-family:'DM Mono',monospace;">${rr1}</div>
+          </div>
+          <div style="background:var(--ink3);border-radius:6px;padding:8px 10px;border:1px solid var(--line);">
+            <div style="font-size:9px;color:var(--dim);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px;">R:R TP2</div>
+            <div style="font-size:13px;font-weight:700;font-family:'DM Mono',monospace;">${rr2}</div>
+          </div>
+          <div style="background:var(--ink3);border-radius:6px;padding:8px 10px;border:1px solid var(--line);">
+            <div style="font-size:9px;color:var(--dim);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px;">P&L</div>
+            <div style="font-size:13px;font-weight:700;font-family:'DM Mono',monospace;color:${pnlColor};">${t.pnl!==null?(t.pnl>=0?'+$':'-$')+Math.abs(t.pnl).toFixed(2):'—'}</div>
           </div>
         </div>
 
-        <!-- Info rows -->
-        <div>
-          ${infoRow('HTF',(t.htf_tf||'')+(t.htf_trend?' · '+t.htf_trend:''))}
-          ${infoRow('MTF',(t.mtf_tf||'')+(t.mtf_session?' · '+t.mtf_session:''))}
-          ${infoRow('LTF',t.ltf_tf||'')}
-          ${infoRow('Entry',t.entry,'font-family:"DM Mono",monospace;')}
-          ${infoRow('Stop Loss',t.sl,'font-family:"DM Mono",monospace;color:#ff4d6a;')}
-          ${infoRow('Take Profit',t.tp,'font-family:"DM Mono",monospace;color:#2dce78;')}
-          ${infoRow('RR',rr,'font-family:"DM Mono",monospace;')}
-          ${infoRow('Lot',t.lot,'font-family:"DM Mono",monospace;')}
-          ${t.mtf_setup_name?infoRow('Setup',t.mtf_setup_name):''}
-        </div>
+        <!-- TRADE INFO section -->
+        ${infoSection('Trade Info')}
+        ${infoRow('Entry',t.entry)}
+        ${infoRow('SL',t.sl,'color:#ff4d6a;')}
+        ${infoRow('TP1',t.tp,'color:#2dce78;')}
+        ${infoRow('TP2',t.tp2,'color:#2dce78;')}
+        ${infoRow('Exit',t.exit_price)}
+        ${infoRow('Lot',t.lot)}
+        ${infoRow('BSL',t.bsl)}
+        ${infoRow('SSL',t.ssl)}
+
+        <!-- ANALYSIS section -->
+        ${infoSection('Analysis')}
+        ${infoRow('HTF Bias',t.htf_bias, t.htf_bias==='Bullish'?'color:#2dce78;':t.htf_bias==='Bearish'?'color:#ff4d6a;':'')}
+        ${infoRow('Wyckoff H4',t.wyckoff_phase_h4,'color:#a78bfa;')}
+        ${infoRow('Phase at POI',t.poi_phase,'color:#2dce78;')}
+        ${infoRow('Spring/UTAD',t.spring_utad)}
+        ${infoRow('Volume Spring',t.spring_volume)}
+        ${infoRow('BOS',t.bos_occur)}
+        ${infoRow('Trigger',t.trigger,'color:#4d8eff;')}
+        ${infoRow('TP1 ถึงไหม',t.tp1_hit)}
+        <div style="height:6px;"></div>
+        <span style="font-size:10px;padding:3px 10px;border-radius:20px;background:var(--ink3);color:var(--gold);">Grade ${t.grade||'—'}</span>
       </div>
     </div>
 
-    <!-- Footer actions -->
-    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:20px;padding-top:16px;border-top:1px solid var(--line);">
+    <!-- Footer -->
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:18px;padding-top:14px;border-top:1px solid var(--line);">
       <button class="btn btn-gold btn-sm" onclick="closeDetailModal();openTradeModal('${t.id}')">✏️ Edit</button>
       <button class="btn btn-ghost btn-sm" style="color:var(--red);" onclick="if(confirm('ลบ Trade นี้?')){trades=trades.filter(x=>x.id!=='${t.id}');sb.from('trades').delete().eq('id','${t.id}').then(()=>{showToast('🗑 ลบแล้ว','error');updateSidebar();renderDashboard();applyFilters();});closeDetailModal();}">🗑 Delete</button>
     </div>
