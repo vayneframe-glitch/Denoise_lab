@@ -2209,27 +2209,34 @@ function calcPrice() {
 function getRMultiple() {
   const entry=parseFloat(document.getElementById('t-entry').value);
   const sl=parseFloat(document.getElementById('t-sl').value);
+  const exit=parseFloat(document.getElementById('t-exit-price')?.value)||null;
   const tp=parseFloat(document.getElementById('t-tp').value);
-  if(isNaN(entry)||isNaN(sl)||isNaN(tp)||sl===entry)return null;
+  if(isNaN(entry)||isNaN(sl)||sl===entry)return null;
   const riskPips=Math.abs(entry-sl);
-  const rewardPips=Math.abs(tp-entry);
-  const rr=rewardPips/riskPips;
-  if(currentResult==='win')return rr;
-  if(currentResult==='loss')return -1;
-  return 0;
+  // Use actual exit price if provided, else fallback to TP1
+  const exitPrice = (!isNaN(exit)&&exit) ? exit : tp;
+  if(isNaN(exitPrice)||exitPrice===entry)return null;
+  const dir = currentDir==='Long'?1:-1;
+  const rewardPips = (exitPrice-entry)*dir;
+  return rewardPips/riskPips;
 }
 function getPnlDollar() {
   const entry=parseFloat(document.getElementById('t-entry').value);
   const sl=parseFloat(document.getElementById('t-sl').value);
+  const exit=parseFloat(document.getElementById('t-exit-price')?.value)||null;
   const tp=parseFloat(document.getElementById('t-tp').value);
   const lot=parseFloat(document.getElementById('t-lot').value)||0.01;
   const pipVal=10;
   if(isNaN(entry)||isNaN(sl)||sl===entry)return null;
   const riskPips=Math.abs(entry-sl);
   const riskDollar=riskPips*pipVal*lot;
-  if(currentResult==='win'){if(isNaN(tp)||tp===entry)return null;const rewardPips=Math.abs(tp-entry);return rewardPips*pipVal*lot;}
-  if(currentResult==='loss')return -riskDollar;
-  return 0;
+  if(currentResult==='be')return 0;
+  // Use actual exit price if provided
+  const exitPrice = (!isNaN(exit)&&exit) ? exit : (currentResult==='win'?tp:null);
+  if(exitPrice===null||isNaN(exitPrice))return currentResult==='loss'?-riskDollar:null;
+  const dir = currentDir==='Long'?1:-1;
+  const rewardPips = (exitPrice-entry)*dir;
+  return rewardPips*pipVal*lot;
 }
 
 // ═══════════════════════════════════════════
@@ -2295,27 +2302,34 @@ function calcPrice() {
 function getRMultiple() {
   const entry=parseFloat(document.getElementById('t-entry').value);
   const sl=parseFloat(document.getElementById('t-sl').value);
+  const exit=parseFloat(document.getElementById('t-exit-price')?.value)||null;
   const tp=parseFloat(document.getElementById('t-tp').value);
-  if(isNaN(entry)||isNaN(sl)||isNaN(tp)||sl===entry)return null;
+  if(isNaN(entry)||isNaN(sl)||sl===entry)return null;
   const riskPips=Math.abs(entry-sl);
-  const rewardPips=Math.abs(tp-entry);
-  const rr=rewardPips/riskPips;
-  if(currentResult==='win')return rr;
-  if(currentResult==='loss')return -1;
-  return 0;
+  // Use actual exit price if provided, else fallback to TP1
+  const exitPrice = (!isNaN(exit)&&exit) ? exit : tp;
+  if(isNaN(exitPrice)||exitPrice===entry)return null;
+  const dir = currentDir==='Long'?1:-1;
+  const rewardPips = (exitPrice-entry)*dir;
+  return rewardPips/riskPips;
 }
 function getPnlDollar() {
   const entry=parseFloat(document.getElementById('t-entry').value);
   const sl=parseFloat(document.getElementById('t-sl').value);
+  const exit=parseFloat(document.getElementById('t-exit-price')?.value)||null;
   const tp=parseFloat(document.getElementById('t-tp').value);
   const lot=parseFloat(document.getElementById('t-lot').value)||0.01;
   const pipVal=10;
   if(isNaN(entry)||isNaN(sl)||sl===entry)return null;
   const riskPips=Math.abs(entry-sl);
   const riskDollar=riskPips*pipVal*lot;
-  if(currentResult==='win'){if(isNaN(tp)||tp===entry)return null;const rewardPips=Math.abs(tp-entry);return rewardPips*pipVal*lot;}
-  if(currentResult==='loss')return -riskDollar;
-  return 0;
+  if(currentResult==='be')return 0;
+  // Use actual exit price if provided
+  const exitPrice = (!isNaN(exit)&&exit) ? exit : (currentResult==='win'?tp:null);
+  if(exitPrice===null||isNaN(exitPrice))return currentResult==='loss'?-riskDollar:null;
+  const dir = currentDir==='Long'?1:-1;
+  const rewardPips = (exitPrice-entry)*dir;
+  return rewardPips*pipVal*lot;
 }
 
 
