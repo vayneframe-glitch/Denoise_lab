@@ -335,7 +335,7 @@ textarea{resize:vertical;min-height:70px;}
           <div class="acc-title">📂 เลือก Account</div>
           <div class="acc-user" id="acc-user-label"></div>
         </div>
-        <button class="btn btn-ghost btn-sm" onclick="doLogout()">Logout</button>
+        
       </div>
       <div class="acc-list" id="acc-list"></div>
       <div class="acc-new">
@@ -370,7 +370,7 @@ textarea{resize:vertical;min-height:70px;}
         <div class="sb-stat-val" id="sb-total">0</div>
         <div class="sb-stat-sub" id="sb-wr">Win Rate: —</div>
       </div>
-      <button class="logout-btn" onclick="doLogout()">⎋ Logout</button>
+      
     </div>
   </aside>
 
@@ -1767,6 +1767,7 @@ const LOGO_B64 = 'data:image/png;base64,' +
 //  SUPABASE INIT
 // ═══════════════════════════════════════════
 const SUPA_URL = 'https://padoljdpktanqamzdyed.supabase.co';
+const FIXED_USER_ID = 'a1b2c3d4-e5f6-7890-abcd-ef1234567890'; // single-user mode — no login required
 const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBhZG9samRwa3RhbnFhbXpkeWVkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAwODkwMTAsImV4cCI6MjA5NTY2NTAxMH0.rPlEw4cGWi5TUx8sz-5PvX1xfr6bzWfSrDrQbdYzoho';
 let sb;
 try {
@@ -1779,7 +1780,7 @@ try {
 // ═══════════════════════════════════════════
 //  STATE
 // ═══════════════════════════════════════════
-let currentUser = null;
+let currentUser = { id: FIXED_USER_ID, email: 'local' }; // always logged in
 let currentAccount = null;
 let trades = [];
 let playbooks = [];
@@ -1965,13 +1966,8 @@ function calcActualR() {
 const PER_PAGE = 15;
 
 async function init() {
-  const { data: { session } } = await sb.auth.getSession();
-  if (session) {
-    currentUser = session.user;
-    showAccPage();
-  } else {
-    showAuthPage();
-  }
+  // Single-user mode: skip auth
+  showAccPage();
 }
 
 function showLoading() { document.getElementById('loading-screen').style.display='flex'; document.getElementById('auth-page').style.display='none'; document.getElementById('acc-page').style.display='none'; document.getElementById('app').style.display='none'; }
@@ -1990,34 +1986,21 @@ function switchAuthTab(mode) {
   document.getElementById('auth-err').textContent='';
 }
 async function doAuth() {
-  const email = document.getElementById('auth-email').value.trim();
-  const pass = document.getElementById('auth-pass').value;
-  const btn = document.getElementById('auth-btn');
-  if(!email||!pass){document.getElementById('auth-err').textContent='กรอก email และ password';return;}
-  btn.disabled=true; btn.textContent='กำลังโหลด...';
-  let err;
-  if(authMode==='login'){
-    const r = await sb.auth.signInWithPassword({email,password:pass});
-    err = r.error; if(!err){currentUser=r.data.user; showAccPage();}
-  } else {
-    const r = await sb.auth.signUp({email,password:pass});
-    err = r.error; if(!err){currentUser=r.data.user; if(currentUser){showAccPage();}else{document.getElementById('auth-err').textContent='ลงทะเบียนแล้ว! กรุณา Login';switchAuthTab('login');}}
-  }
-  if(err){document.getElementById('auth-err').textContent=err.message;}
-  btn.disabled=false; btn.textContent=authMode==='login'?'Login':'Register';
+  // Single-user mode: auth disabled
+  showAccPage();
 }
 async function doLogout() {
-  await sb.auth.signOut();
-  currentUser=null; currentAccount=null; trades=[]; playbooks=[];
-  showAuthPage();
+  // Single-user mode: no logout
+  currentAccount=null; trades=[]; playbooks=[];
+  showAccPage();
 }
 
 // ═══════════════════════════════════════════
 //  ACCOUNTS
 // ═══════════════════════════════════════════
 async function loadAccounts() {
-  document.getElementById('acc-user-label').textContent = currentUser?.email||'';
-  const { data, error } = await sb.from('accounts').select('*').eq('user_id', currentUser.id).order('created_at');
+  document.getElementById('acc-user-label').textContent = 'DeNoise Lab';
+  const { data, error } = await sb.from('accounts').select('*').eq('user_id', FIXED_USER_ID).order('created_at');
   if(error){showToast('Error loading accounts','error');return;}
   renderAccList(data||[]);
 }
@@ -2033,7 +2016,7 @@ function renderAccList(accounts) {
 async function createAccount() {
   const name = document.getElementById('acc-new-name').value.trim();
   if(!name){showToast('ใส่ชื่อก่อน','error');return;}
-  const {data,error} = await sb.from('accounts').insert({user_id:currentUser.id,name}).select().single();
+  const {data,error} = await sb.from('accounts').insert({user_id:FIXED_USER_ID,name}).select().single();
   if(error){showToast('Error: '+error.message,'error');return;}
   document.getElementById('acc-new-name').value='';
   showToast('✅ สร้าง Account แล้ว');
@@ -3236,7 +3219,7 @@ window.addEventListener('resize',()=>{
 setTimeout(()=>{
   if(document.getElementById('loading-screen').style.display!=='none'){
     console.warn('Loading timeout - forcing auth page');
-    showAuthPage();
+    showAccPage(); // single-user: no auth page
   }
 },5000);
 init();
