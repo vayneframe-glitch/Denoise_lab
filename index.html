@@ -602,6 +602,7 @@ textarea{resize:vertical;min-height:70px;}
       <select id="htf-tf"></select><select id="htf-trend"></select>
       <select id="mtf-tf"></select><select id="ltf-tf"></select>
       <input id="mtf-setup-name"><datalist id="preset-datalist"></datalist>
+      <input type="number" id="t-sl">
       <div id="session-tag-pool"></div>
       <div id="mtf-tags-container"></div><div id="ltf-tags-container"></div>
     </div>
@@ -2628,11 +2629,20 @@ function openTradeModal(id=null){
   renderSessionTags(t?.mtf_sessions||[]);
   selectedTags={mtf:t?.mtf_tags||[],ltf:t?.ltf_tags||[]};
   // Basic fields
-  document.getElementById('t-entry').value=t?.entry||'';
-  document.getElementById('t-sl').value=t?.sl||'';
-  document.getElementById('t-tp').value=t?.tp||'';
-  document.getElementById('t-lot').value=t?.lot||'0.01';
-  document.getElementById('t-lesson').value=t?.lesson||'';
+  const _sv = (id,v) => { const el=document.getElementById(id); if(el) el.value=v; };
+  _sv('t-entry', t?.entry||'');
+  _sv('t-sl-price', t?.sl||'');
+  _sv('t-sl', t?.sl||'');
+  _sv('t-tp', t?.tp||'');
+  _sv('t-tp2', '');
+  _sv('t-lot', t?.lot||'0.01');
+  _sv('t-lesson', t?.lesson||'');
+  _sv('t-50level', '');
+  _sv('t-bsl', '');
+  _sv('t-ssl', '');
+  _sv('t-exit-price', '');
+  _sv('t-emotion', '');
+  _sv('t-rule-break', '');
   // Screenshots (mtf=H4, ltf=M15 entry, exit stored in url_ltf as base64 if it starts with data:)
   const exitSs = t?.url_ltf?.startsWith('data:')?t.url_ltf:null;
   const urlLtf = t?.url_ltf?.startsWith('data:')?'':t?.url_ltf||'';
