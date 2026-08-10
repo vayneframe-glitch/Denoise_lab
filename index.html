@@ -474,8 +474,8 @@ textarea{resize:vertical;min-height:70px;}
   </div>
   <div class="modal-body">
 
-    <!-- SYMBOL + DIRECTION (hidden t-symbol stays for save) -->
-    <div style="margin-bottom:14px;">
+    <!-- Symbol + Direction -->
+    <div style="margin-bottom:12px;">
       <label style="display:block;margin-bottom:8px;">Symbol</label>
       <div class="symbol-pool" id="symbol-pool"></div>
       <div class="symbol-add-row">
@@ -484,120 +484,152 @@ textarea{resize:vertical;min-height:70px;}
         <button class="btn btn-ghost btn-sm" style="color:var(--red);" onclick="removeSymbol()">－</button>
       </div>
     </div>
-    <div class="fg" style="display:none;"><input type="text" id="t-symbol" placeholder="XAUUSD"></div>
-    <div class="fg" style="margin-bottom:14px;">
-      <label>Direction</label>
-      <div style="display:flex;gap:6px;margin-top:4px;">
-        <button class="result-btn" id="dir-long" onclick="setDir('Long')" style="flex:1;">↑ Long</button>
-        <button class="result-btn" id="dir-short" onclick="setDir('Short')" style="flex:1;">↓ Short</button>
+    <div style="display:none;"><input type="text" id="t-symbol"></div>
+    <div style="display:flex;gap:6px;margin-bottom:16px;">
+      <button class="result-btn" id="dir-long" onclick="setDir('Long')" style="flex:1;">↑ Long</button>
+      <button class="result-btn" id="dir-short" onclick="setDir('Short')" style="flex:1;">↓ Short</button>
+    </div>
+
+    <div class="form-divider"></div>
+
+    <!-- 1 · CONTEXT -->
+    <div class="form-section-title">1 · Context</div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+      <div>
+        <div class="tag-section-title">Kill Zone</div>
+        <div id="killzone-tag-pool" style="display:flex;gap:6px;flex-wrap:wrap;"></div>
+      </div>
+      <div>
+        <div class="tag-section-title">คำสั่งวัน</div>
+        <div id="daycmd-pool" style="display:flex;gap:6px;flex-wrap:wrap;"></div>
       </div>
     </div>
 
-    <div class="form-divider"></div>
-
-    <!-- SECTION 1: KILL ZONE -->
-    <div class="form-section-title">1 · Kill Zone</div>
-    <div id="killzone-tag-pool" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;"></div>
-
-    <!-- SECTION 2: CONTEXT -->
-    <div class="form-section-title">2 · Context</div>
-
-    <div style="margin-bottom:10px;">
-      <div class="tag-section-title">HTF Bias</div>
-      <div id="htf-bias-pool" style="display:flex;gap:6px;flex-wrap:wrap;"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+      <div>
+        <div class="tag-section-title">HTF Bias</div>
+        <div id="htf-bias-pool" style="display:flex;gap:6px;flex-wrap:wrap;"></div>
+      </div>
+      <div>
+        <div class="tag-section-title">Intraday Bias</div>
+        <div id="intraday-bias-pool" style="display:flex;gap:6px;flex-wrap:wrap;"></div>
+      </div>
     </div>
 
-    <div style="margin-bottom:10px;">
-      <div class="tag-section-title">Wyckoff Phase (H4)</div>
+    <div style="margin-bottom:14px;">
+      <div class="tag-section-title">Wyckoff Phase (MTF)</div>
       <div id="htf-phase-pool" style="display:flex;gap:6px;flex-wrap:wrap;"></div>
     </div>
 
+    <div class="form-divider"></div>
+
+    <!-- 2 · LIQUIDITY & POI -->
+    <div class="form-section-title">2 · Liquidity &amp; POI</div>
+
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
-      <div class="fg"><label>BSL อยู่ที่</label><input type="text" id="t-bsl" placeholder="ระดับราคา BSL..."></div>
-      <div class="fg"><label>SSL อยู่ที่</label><input type="text" id="t-ssl" placeholder="ระดับราคา SSL..."></div>
+      <div class="fg"><label>BSL</label><input type="text" id="t-bsl" placeholder="ระดับราคา..."></div>
+      <div class="fg"><label>SSL</label><input type="text" id="t-ssl" placeholder="ระดับราคา..."></div>
     </div>
 
-    <div style="margin-bottom:10px;">
-      <div class="tag-section-title">POI ที่เลือก</div>
-      <div id="poi-select-pool" style="display:flex;gap:6px;flex-wrap:wrap;"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px;">
+      <div>
+        <div class="tag-section-title">POI Liq</div>
+        <div id="poi-liq-pool" style="display:flex;gap:5px;"></div>
+      </div>
+      <div>
+        <div class="tag-section-title">POI Orange</div>
+        <div id="poi-orange-pool" style="display:flex;gap:5px;"></div>
+      </div>
+      <div>
+        <div class="tag-section-title">POI Focus</div>
+        <div id="poi-focus-pool" style="display:flex;gap:5px;"></div>
+      </div>
     </div>
 
-    <div style="margin-bottom:14px;">
-      <div class="tag-section-title">POI Type</div>
-      <div id="poi-type-pool" style="display:flex;gap:6px;flex-wrap:wrap;"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px;">
+      <div>
+        <div class="tag-section-title">Type</div>
+        <div id="poi-type-pool" style="display:flex;gap:5px;"></div>
+      </div>
+      <div>
+        <div class="tag-section-title">Fresh</div>
+        <div id="poi-fresh-pool" style="display:flex;gap:5px;"></div>
+      </div>
+    </div>
+
+    <div class="fg" style="margin-bottom:14px;">
+      <label>50% Level</label>
+      <input type="text" id="t-50level" placeholder="ราคา...">
     </div>
 
     <div class="form-divider"></div>
 
-    <!-- SECTION 3: WYCKOFF AT POI -->
+    <!-- 3 · WYCKOFF AT POI -->
     <div class="form-section-title">3 · Wyckoff at POI</div>
 
     <div style="margin-bottom:10px;">
-      <div class="tag-section-title">Phase ที่ POI</div>
+      <div class="tag-section-title">Event ที่เห็น (เลือกได้หลายอัน)</div>
+      <div id="wyckoff-event-pool" style="display:flex;gap:6px;flex-wrap:wrap;"></div>
+    </div>
+
+    <div style="margin-bottom:10px;">
+      <div class="tag-section-title">POI Type</div>
       <div id="poi-phase-pool" style="display:flex;gap:6px;flex-wrap:wrap;"></div>
     </div>
 
-    <div style="margin-bottom:10px;">
-      <div class="tag-section-title">Spring / UTAD เกิดไหม</div>
-      <div id="spring-pool" style="display:flex;gap:6px;"></div>
-    </div>
-
-    <div style="margin-bottom:10px;">
-      <div class="tag-section-title">Volume ตอน Spring</div>
-      <div id="volume-pool" style="display:flex;gap:6px;"></div>
-    </div>
-
-    <div style="margin-bottom:10px;">
-      <div class="tag-section-title">BOS เกิดไหม</div>
-      <div id="bos-pool" style="display:flex;gap:6px;"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
+      <div>
+        <div class="tag-section-title">Volume ยืนยัน</div>
+        <div id="volume-pool" style="display:flex;gap:5px;"></div>
+      </div>
+      <div>
+        <div class="tag-section-title">No Supply ยืนยัน</div>
+        <div id="nosupply-pool" style="display:flex;gap:5px;"></div>
+      </div>
     </div>
 
     <div style="margin-bottom:14px;">
-      <div class="tag-section-title">Trigger</div>
-      <div id="trigger-pool" style="display:flex;gap:6px;flex-wrap:wrap;"></div>
+      <div class="tag-section-title">BOS เกิด</div>
+      <div id="bos-pool" style="display:flex;gap:6px;flex-wrap:wrap;"></div>
     </div>
 
     <div class="form-divider"></div>
 
-    <!-- SECTION 4: TRADE -->
+    <!-- 4 · TRADE -->
     <div class="form-section-title">4 · Trade</div>
-    <!-- Hidden legacy fields for compatibility -->
     <div style="display:none;">
-      <select id="htf-tf"></select>
-      <select id="htf-trend"></select>
-      <select id="mtf-tf"></select>
-      <select id="ltf-tf"></select>
-      <input id="mtf-setup-name">
-      <datalist id="preset-datalist"></datalist>
+      <select id="htf-tf"></select><select id="htf-trend"></select>
+      <select id="mtf-tf"></select><select id="ltf-tf"></select>
+      <input id="mtf-setup-name"><datalist id="preset-datalist"></datalist>
       <div id="session-tag-pool"></div>
-      <div id="mtf-tags-container"></div>
-      <div id="ltf-tags-container"></div>
+      <div id="mtf-tags-container"></div><div id="ltf-tags-container"></div>
     </div>
 
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
       <div class="fg"><label>Entry</label><input type="number" id="t-entry" placeholder="0.00" step="any" oninput="calcPrice()"></div>
-      <div class="fg"><label>Stop Loss</label><input type="number" id="t-sl" placeholder="0.00" step="any" oninput="calcPrice()"></div>
+      <div class="fg"><label>SL <span style="color:var(--dim);font-size:10px;" id="sl-pts-label"></span></label><input type="number" id="t-sl-price" placeholder="0.00" step="any" oninput="calcPrice()"></div>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
       <div class="fg"><label>TP1</label><input type="number" id="t-tp" placeholder="0.00" step="any" oninput="calcPrice()"></div>
-      <div class="fg"><label>TP2 (optional)</label><input type="number" id="t-tp2" placeholder="0.00" step="any" oninput="calcPrice()"></div>
+      <div class="fg"><label>TP2</label><input type="number" id="t-tp2" placeholder="0.00" step="any" oninput="calcPrice()"></div>
     </div>
-    <div class="fg" style="margin-bottom:12px;">
-      <label>Lot Size</label>
-      <input type="number" id="t-lot" placeholder="0.01" step="0.01" value="0.01" oninput="calcPrice()" style="width:160px;">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+      <div class="fg"><label>Lot</label><input type="number" id="t-lot" placeholder="0.01" step="0.01" value="0.01" oninput="calcPrice()"></div>
+      <div class="fg"><label>R:R (auto)</label><input type="text" id="calc-rr-display" placeholder="—" readonly style="color:var(--blue);"></div>
     </div>
     <div class="price-calc-result" id="price-calc">
-      <div class="calc-item"><div class="calc-label">R:R (TP1)</div><div class="calc-val" id="calc-rr" style="color:var(--blue);">—</div></div>
+      <div class="calc-item"><div class="calc-label">SL (pts)</div><div class="calc-val neg" id="calc-slpts">—</div></div>
       <div class="calc-item"><div class="calc-label">Profit ($)</div><div class="calc-val pos" id="calc-profit">—</div></div>
       <div class="calc-item"><div class="calc-label">Loss ($)</div><div class="calc-val neg" id="calc-loss">—</div></div>
       <div class="calc-item"><div class="calc-label">R Multiple</div><div class="calc-val" id="calc-rmul" style="color:var(--text);">—</div></div>
-      <div class="calc-item"><div class="calc-label">Actual P&L</div><div class="calc-val" id="calc-pnl">—</div></div>
+      <div class="calc-item"><div class="calc-label">Actual P&amp;L</div><div class="calc-val" id="calc-pnl">—</div></div>
     </div>
 
     <!-- Grade -->
-    <div class="fg" style="margin-bottom:14px;">
-      <label>Setup Grade</label>
-      <div style="display:flex;gap:6px;margin-top:4px;">
+    <div style="margin-bottom:14px;">
+      <div class="tag-section-title">Grade</div>
+      <div style="display:flex;gap:6px;">
         <button class="result-btn" id="grade-A" onclick="setGrade('A')" style="flex:1;">🏆 A</button>
         <button class="result-btn" id="grade-B" onclick="setGrade('B')" style="flex:1;">✓ B</button>
         <button class="result-btn" id="grade-C" onclick="setGrade('C')" style="flex:1;">⚠ C</button>
@@ -606,41 +638,46 @@ textarea{resize:vertical;min-height:70px;}
 
     <div class="form-divider"></div>
 
-    <!-- SECTION 5: RESULT -->
+    <!-- 5 · RESULT -->
     <div class="form-section-title">5 · Result</div>
-    <div class="fg" style="margin-bottom:12px;">
-      <label>ผลเทรด</label>
+    <div style="margin-bottom:12px;">
       <div class="result-toggle">
-        <button class="result-btn win" id="res-win" onclick="setResult('win')">✅ ชนะ</button>
-        <button class="result-btn loss" id="res-loss" onclick="setResult('loss')">❌ แพ้</button>
+        <button class="result-btn win" id="res-win" onclick="setResult('win')">✅ Win</button>
+        <button class="result-btn loss" id="res-loss" onclick="setResult('loss')">❌ Loss</button>
         <button class="result-btn be" id="res-be" onclick="setResult('be')">➡ BE</button>
       </div>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
-      <div class="fg"><label>ออกที่ราคา</label><input type="number" id="t-exit-price" placeholder="0.00" step="any" oninput="calcPrice()"></div>
-      <div class="fg"><label>R ที่ได้ (คำนวณอัตโนมัติ)</label><input type="text" id="t-actual-r" placeholder="—" readonly style="color:var(--green);"></div>
+      <div class="fg"><label>ออกที่</label><input type="number" id="t-exit-price" placeholder="0.00" step="any" oninput="calcPrice()"></div>
+      <div class="fg"><label>R ที่ได้ (auto)</label><input type="text" id="t-actual-r" placeholder="—" readonly style="color:var(--green);"></div>
     </div>
     <div style="margin-bottom:14px;">
       <div class="tag-section-title">ถึง TP1 ไหม</div>
       <div id="tp1-hit-pool" style="display:flex;gap:6px;"></div>
     </div>
 
-    <!-- Loss analysis — show only when loss -->
+    <!-- Loss analysis -->
     <div id="loss-analysis-section" style="display:none;margin-bottom:14px;">
-      <div style="font-size:11px;color:var(--red);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">⚠ ผิดตรงไหน?</div>
-      <div id="loss-reason-checkboxes" style="display:flex;flex-direction:column;gap:6px;"></div>
+      <div style="font-size:11px;color:var(--red);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">⚠ ผิดตรงไหน</div>
+      <div id="loss-reason-checkboxes" style="display:grid;grid-template-columns:1fr 1fr;gap:4px;"></div>
     </div>
 
     <div class="form-divider"></div>
 
-    <!-- SECTION 6: EXECUTION -->
+    <!-- 6 · EXECUTION -->
     <div class="form-section-title">6 · Execution</div>
-    <div style="margin-bottom:10px;">
-      <div class="tag-section-title">ทำตาม Rule ไหม</div>
-      <div id="rule-pool" style="display:flex;gap:6px;"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+      <div>
+        <div class="tag-section-title">ทำตาม Rule</div>
+        <div id="rule-pool" style="display:flex;gap:6px;"></div>
+      </div>
+      <div>
+        <div class="tag-section-title">Dual Bias ตรงกัน</div>
+        <div id="dualbias-pool" style="display:flex;gap:6px;"></div>
+      </div>
     </div>
-    <div class="fg" style="margin-bottom:12px;" id="rule-break-row">
-      <label>ถ้าไม่ตาม Rule — ผิดตรงไหน</label>
+    <div class="fg" style="margin-bottom:10px;display:none;" id="rule-break-row">
+      <label>ถ้าไม่ใช่ — ระบุ</label>
       <input type="text" id="t-rule-break" placeholder="อธิบาย...">
     </div>
     <div class="fg" style="margin-bottom:14px;">
@@ -650,17 +687,17 @@ textarea{resize:vertical;min-height:70px;}
 
     <div class="form-divider"></div>
 
-    <!-- SECTION 7: SCREENSHOT -->
+    <!-- 7 · SCREENSHOT -->
     <div class="form-section-title">7 · Screenshots</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px;">
       <div class="screenshot-box">
-        <div class="ss-label">H4 ตอนเข้า</div>
+        <div class="ss-label">H4 ตอนวางแผน</div>
         <label for="ss-mtf-input">
           <div class="ph" id="ss-mtf-ph"><span class="ph-icon">🖼</span>Click to upload</div>
           <img id="ss-mtf-prev" style="display:none;" alt="H4">
         </label>
         <input type="file" id="ss-mtf-input" accept="image/*" style="display:none;" onchange="loadSS(event,'mtf')">
-        <button class="btn btn-ghost btn-xs" style="margin-top:4px;" onclick="clearSS('mtf')">✕ Clear</button>
+        <button class="btn btn-ghost btn-xs" style="margin-top:4px;" onclick="clearSS('mtf')">✕</button>
       </div>
       <div class="screenshot-box">
         <div class="ss-label">M15 ตอนเข้า</div>
@@ -669,21 +706,19 @@ textarea{resize:vertical;min-height:70px;}
           <img id="ss-ltf-prev" style="display:none;" alt="M15 Entry">
         </label>
         <input type="file" id="ss-ltf-input" accept="image/*" style="display:none;" onchange="loadSS(event,'ltf')">
-        <button class="btn btn-ghost btn-xs" style="margin-top:4px;" onclick="clearSS('ltf')">✕ Clear</button>
+        <button class="btn btn-ghost btn-xs" style="margin-top:4px;" onclick="clearSS('ltf')">✕</button>
+      </div>
+      <div class="screenshot-box">
+        <div class="ss-label">M15 ตอนออก</div>
+        <label for="ss-exit-input">
+          <div class="ph" id="ss-exit-ph"><span class="ph-icon">🖼</span>Click to upload</div>
+          <img id="ss-exit-prev" style="display:none;" alt="M15 Exit">
+        </label>
+        <input type="file" id="ss-exit-input" accept="image/*" style="display:none;" onchange="loadSS(event,'exit')">
+        <button class="btn btn-ghost btn-xs" style="margin-top:4px;" onclick="clearSS('exit')">✕</button>
       </div>
     </div>
-    <!-- 3rd screenshot stored in url_mtf field as base64 -->
-    <div class="screenshot-box" style="margin-bottom:14px;">
-      <div class="ss-label">M15 ตอนออก</div>
-      <label for="ss-exit-input">
-        <div class="ph" id="ss-exit-ph"><span class="ph-icon">🖼</span>Click to upload</div>
-        <img id="ss-exit-prev" style="display:none;" alt="M15 Exit">
-      </label>
-      <input type="file" id="ss-exit-input" accept="image/*" style="display:none;" onchange="loadSS(event,'exit')">
-      <button class="btn btn-ghost btn-xs" style="margin-top:4px;" onclick="clearSS('exit')">✕ Clear</button>
-    </div>
 
-    <!-- Hidden legacy URL fields -->
     <div style="display:none;">
       <input type="text" id="t-url-mtf">
       <input type="text" id="t-url-ltf">
@@ -691,12 +726,11 @@ textarea{resize:vertical;min-height:70px;}
 
     <div class="form-divider"></div>
 
-    <!-- SECTION 8: LESSON -->
+    <!-- 8 · LESSON -->
     <div class="form-section-title">8 · Lesson Learned</div>
     <div class="fg" style="margin-bottom:20px;">
       <textarea id="t-lesson" placeholder="ได้เรียนรู้อะไร..." style="min-height:80px;"></textarea>
     </div>
-    <!-- Hidden legacy reason field -->
     <div style="display:none;"><textarea id="t-reason"></textarea></div>
 
     <div style="display:flex;gap:10px;">
@@ -1760,19 +1794,25 @@ let tagMgrContext = null; // 'mtf' or 'ltf'
 
 // ── NEW FORM STATE (v5) ──
 const NF = {
-  killzone: [],      // single select: london, ny
-  htfBias: [],       // single: bullish, bearish, unclear
-  htfPhase: [],      // single: phaseA..E
-  poiSelect: [],     // multi: poi_orange, poi_focuz
-  poiType: [],       // multi: bb, bkb, fresh, retested
-  poiPhase: [],      // single: phaseA..E
-  spring: [],        // single: yes, no
-  volume: [],        // single: high, low, mid
-  bos: [],           // single: yes, no
-  trigger: [],       // single: no_supply, lps, lpsy, test
-  tp1hit: [],        // single: yes, no
-  lossReasons: [],   // multi checkboxes
-  followRule: [],    // single: yes, no
+  killzone: [],       // london, ny
+  daycmd: [],         // long, short, wait, notrade
+  htfBias: [],        // bullish, bearish, unclear
+  intradayBias: [],   // bullish, bearish, sideway
+  htfPhase: [],       // phA..E (Wyckoff MTF)
+  poiLiq: [],         // yes, no
+  poiOrange: [],      // yes, no
+  poiFocus: [],       // yes, no
+  poiType: [],        // bb, bkb
+  poiFresh: [],       // yes, no
+  wyckoffEvents: [],  // multi: sc,ua,stb,spring,lps,utad,lpsy
+  poiPhase: [],       // poi_liq, poi_orange, poi_focus
+  volume: [],         // yes, no
+  nosupply: [],       // yes, no
+  bos: [],            // m15, m5ex, none
+  tp1hit: [],         // yes, no
+  lossReasons: [],    // multi checkboxes
+  followRule: [],     // yes, no
+  dualBias: [],       // yes, no
 };
 function nfSingle(key, val) {
   NF[key] = [val];
@@ -1791,19 +1831,26 @@ function nfRadio(key, val) {
   if(key === 'spring' || key === 'bos') {} // just re-render
 }
 function renderPool(key) {
+  const C = {gold:'#f5c842',blue:'#4d8eff',green:'#2dce78',red:'#ff4d6a',purple:'#a78bfa',orange:'#fb923c'};
   const poolDefs = {
-    killzone: { id:'killzone-tag-pool', items:[{v:'london',l:'London'},{v:'ny',l:'NY'}], color:'#f5c842', multi:false },
-    htfBias:  { id:'htf-bias-pool',    items:[{v:'bullish',l:'Bullish'},{v:'bearish',l:'Bearish'},{v:'unclear',l:'Unclear'}], color:'#4d8eff', multi:false },
-    htfPhase: { id:'htf-phase-pool',   items:[{v:'phA',l:'Phase A'},{v:'phB',l:'Phase B'},{v:'phC',l:'Phase C'},{v:'phD',l:'Phase D'},{v:'phE',l:'Phase E'}], color:'#a78bfa', multi:false },
-    poiSelect:{ id:'poi-select-pool',  items:[{v:'poi_orange',l:'POI Orange'},{v:'poi_focuz',l:'POI FOCUZ'}], color:'#fb923c', multi:true },
-    poiType:  { id:'poi-type-pool',    items:[{v:'bb',l:'BB'},{v:'bkb',l:'BKB'},{v:'fresh',l:'Fresh'},{v:'retested',l:'Retested'}], color:'#fb923c', multi:true },
-    poiPhase: { id:'poi-phase-pool',   items:[{v:'phA',l:'Phase A'},{v:'phB',l:'Phase B'},{v:'phC',l:'Phase C'},{v:'phD',l:'Phase D'},{v:'phE',l:'Phase E'}], color:'#a78bfa', multi:false },
-    spring:   { id:'spring-pool',      items:[{v:'yes',l:'ใช่ ✓'},{v:'no',l:'ไม่ใช่ ✗'}], color:'#2dce78', multi:false },
-    volume:   { id:'volume-pool',      items:[{v:'high',l:'สูง'},{v:'mid',l:'ปานกลาง'},{v:'low',l:'ต่ำ'}], color:'#2dce78', multi:false },
-    bos:      { id:'bos-pool',         items:[{v:'yes',l:'ใช่ ✓'},{v:'no',l:'ไม่ใช่ ✗'}], color:'#2dce78', multi:false },
-    trigger:  { id:'trigger-pool',     items:[{v:'no_supply',l:'No Supply'},{v:'lps',l:'LPS'},{v:'lpsy',l:'LPSY'},{v:'test',l:'Test'}], color:'#f5c842', multi:false },
-    tp1hit:   { id:'tp1-hit-pool',     items:[{v:'yes',l:'ถึง ✓'},{v:'no',l:'ไม่ถึง ✗'}], color:'#2dce78', multi:false },
-    followRule:{ id:'rule-pool',       items:[{v:'yes',l:'ใช่ ✓'},{v:'no',l:'ไม่ใช่ ✗'}], color:'#2dce78', multi:false },
+    killzone:     { id:'killzone-tag-pool',    items:[{v:'london',l:'London'},{v:'ny',l:'NY'}],                                                              color:C.gold,   multi:false },
+    daycmd:       { id:'daycmd-pool',          items:[{v:'long',l:'Long'},{v:'short',l:'Short'},{v:'wait',l:'รอ'},{v:'notrade',l:'ไม่เทรด'}],                color:C.blue,   multi:false },
+    htfBias:      { id:'htf-bias-pool',        items:[{v:'bullish',l:'Bullish'},{v:'bearish',l:'Bearish'},{v:'unclear',l:'Unclear'}],                        color:C.green,  multi:false },
+    intradayBias: { id:'intraday-bias-pool',   items:[{v:'bullish',l:'Bullish'},{v:'bearish',l:'Bearish'},{v:'sideway',l:'Sideway'}],                        color:C.blue,   multi:false },
+    htfPhase:     { id:'htf-phase-pool',       items:[{v:'phA',l:'A'},{v:'phB',l:'B'},{v:'phC',l:'C'},{v:'phD',l:'D'},{v:'phE',l:'E'}],                     color:C.purple, multi:false },
+    poiLiq:       { id:'poi-liq-pool',         items:[{v:'yes',l:'มี'},{v:'no',l:'ไม่มี'}],                                                                  color:C.orange, multi:false },
+    poiOrange:    { id:'poi-orange-pool',      items:[{v:'yes',l:'มี'},{v:'no',l:'ไม่มี'}],                                                                  color:C.orange, multi:false },
+    poiFocus:     { id:'poi-focus-pool',       items:[{v:'yes',l:'มี'},{v:'no',l:'ไม่มี'}],                                                                  color:C.gold,   multi:false },
+    poiType:      { id:'poi-type-pool',        items:[{v:'bb',l:'BB'},{v:'bkb',l:'BKB'}],                                                                   color:C.gold,   multi:false },
+    poiFresh:     { id:'poi-fresh-pool',       items:[{v:'yes',l:'ใช่'},{v:'no',l:'ไม่ใช่'}],                                                                color:C.green,  multi:false },
+    wyckoffEvents:{ id:'wyckoff-event-pool',   items:[{v:'sc',l:'SC'},{v:'ua',l:'UA'},{v:'stb',l:'STB'},{v:'spring',l:'Spring'},{v:'lps',l:'LPS'},{v:'utad',l:'UTAD'},{v:'lpsy',l:'LPSY'}], color:C.purple, multi:true },
+    poiPhase:     { id:'poi-phase-pool',       items:[{v:'poi_liq',l:'POI Liq'},{v:'poi_orange',l:'POI Orange'},{v:'poi_focus',l:'POI Focus'}],               color:C.orange, multi:false },
+    volume:       { id:'volume-pool',          items:[{v:'yes',l:'ใช่ ✓'},{v:'no',l:'ไม่ใช่ ✗'}],                                                           color:C.green,  multi:false },
+    nosupply:     { id:'nosupply-pool',        items:[{v:'yes',l:'ใช่ ✓'},{v:'no',l:'ไม่ใช่ ✗'}],                                                           color:C.green,  multi:false },
+    bos:          { id:'bos-pool',             items:[{v:'m15',l:'M15'},{v:'m5ex',l:'M5 Exception'},{v:'none',l:'ไม่เกิด'}],                                 color:C.blue,   multi:false },
+    tp1hit:       { id:'tp1-hit-pool',         items:[{v:'yes',l:'ถึง ✓'},{v:'no',l:'ไม่ถึง ✗'}],                                                           color:C.green,  multi:false },
+    followRule:   { id:'rule-pool',            items:[{v:'yes',l:'ใช่ ✓'},{v:'no',l:'ไม่ใช่ ✗'}],                                                           color:C.green,  multi:false },
+    dualBias:     { id:'dualbias-pool',        items:[{v:'yes',l:'ใช่ ✓'},{v:'no',l:'ไม่ใช่ ✗'}],                                                           color:C.green,  multi:false },
   };
   const def = poolDefs[key];
   if(!def) return;
@@ -1814,7 +1861,7 @@ function renderPool(key) {
     const active = arr.includes(item.v);
     const c = def.color;
     return `<button type="button" onclick="nfRadio('${key}','${item.v}')"
-      style="padding:6px 14px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;
+      style="padding:5px 13px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;
       border:1.5px solid ${active?c:'var(--line)'};
       background:${active?c+'22':'var(--ink3)'};
       color:${active?c:'var(--muted)'};
@@ -1825,18 +1872,21 @@ function renderLossReasons() {
   const el = document.getElementById('loss-reason-checkboxes');
   if(!el) return;
   const opts = [
-    {v:'wrong_phase', l:'Phase อ่านผิด'},
-    {v:'fake_spring', l:'Spring ไม่จริง'},
-    {v:'no_vol', l:'Volume ไม่ยืนยัน'},
-    {v:'wrong_bias', l:'HTF Bias ผิด'},
+    {v:'htf_bias',    l:'HTF Bias ผิด'},
+    {v:'intra_bias',  l:'Intraday Bias ผิด'},
     {v:'invalid_poi', l:'POI ไม่ Valid'},
-    {v:'bad_exec', l:'Execute ผิด Rule'},
+    {v:'wrong_event', l:'Event อ่านผิด'},
+    {v:'no_vol',      l:'Volume ไม่ยืนยัน'},
+    {v:'fake_bos',    l:'BOS ปลอม'},
+    {v:'no_kz',       l:'ไม่ครบ Kill Zone'},
+    {v:'bad_exec',    l:'Execute ผิด Rule'},
+    {v:'fomo',        l:'FOMO / อารมณ์'},
   ];
   el.innerHTML = opts.map(o => {
     const chk = NF.lossReasons.includes(o.v);
-    return `<label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:12px;color:var(--text);">
+    return `<label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-size:11px;color:var(--text);padding:3px 0;">
       <input type="checkbox" ${chk?'checked':''} onchange="nfCheckbox('lossReasons','${o.v}',this.checked)"
-        style="accent-color:var(--red);width:14px;height:14px;">
+        style="accent-color:var(--red);width:13px;height:13px;flex-shrink:0;">
       ${o.l}</label>`;
   }).join('');
 }
@@ -1856,56 +1906,46 @@ function renderLossSection() {
   }
 }
 function renderAllNfPools() {
-  ['killzone','htfBias','htfPhase','poiSelect','poiType','poiPhase','spring','volume','bos','trigger','tp1hit','followRule'].forEach(renderPool);
+  ['killzone','daycmd','htfBias','intradayBias','htfPhase','poiLiq','poiOrange','poiFocus','poiType','poiFresh','wyckoffEvents','poiPhase','volume','nosupply','bos','tp1hit','followRule','dualBias'].forEach(renderPool);
   renderLossSection();
   renderRuleBreakVisibility();
 }
 function nfToJson() {
+  const g = id => (document.getElementById(id)||{}).value||'';
   return JSON.stringify({
-    killzone: NF.killzone,
-    htfBias: NF.htfBias,
+    killzone: NF.killzone, daycmd: NF.daycmd,
+    htfBias: NF.htfBias, intradayBias: NF.intradayBias,
     htfPhase: NF.htfPhase,
-    bsl: (document.getElementById('t-bsl')||{}).value||'',
-    ssl: (document.getElementById('t-ssl')||{}).value||'',
-    poiSelect: NF.poiSelect,
-    poiType: NF.poiType,
-    poiPhase: NF.poiPhase,
-    spring: NF.spring,
-    volume: NF.volume,
-    bos: NF.bos,
-    trigger: NF.trigger,
-    tp2: parseFloat((document.getElementById('t-tp2')||{}).value)||null,
-    exitPrice: parseFloat((document.getElementById('t-exit-price')||{}).value)||null,
-    tp1hit: NF.tp1hit,
-    lossReasons: NF.lossReasons,
-    followRule: NF.followRule,
-    ruleBreak: (document.getElementById('t-rule-break')||{}).value||'',
-    emotion: (document.getElementById('t-emotion')||{}).value||'',
+    bsl: g('t-bsl'), ssl: g('t-ssl'),
+    poiLiq: NF.poiLiq, poiOrange: NF.poiOrange, poiFocus: NF.poiFocus,
+    poiType: NF.poiType, poiFresh: NF.poiFresh,
+    level50: g('t-50level'),
+    wyckoffEvents: NF.wyckoffEvents, poiPhase: NF.poiPhase,
+    volume: NF.volume, nosupply: NF.nosupply, bos: NF.bos,
+    tp2: parseFloat(g('t-tp2'))||null,
+    exitPrice: parseFloat(g('t-exit-price'))||null,
+    tp1hit: NF.tp1hit, lossReasons: NF.lossReasons,
+    followRule: NF.followRule, dualBias: NF.dualBias,
+    ruleBreak: g('t-rule-break'), emotion: g('t-emotion'),
   });
 }
 function nfFromJson(json) {
   if(!json) return;
-  let d;
-  try { d = JSON.parse(json); } catch(e) { return; }
-  NF.killzone = d.killzone||[];
-  NF.htfBias = d.htfBias||[];
-  NF.htfPhase = d.htfPhase||[];
-  NF.poiSelect = d.poiSelect||[];
-  NF.poiType = d.poiType||[];
-  NF.poiPhase = d.poiPhase||[];
-  NF.spring = d.spring||[];
-  NF.volume = d.volume||[];
-  NF.bos = d.bos||[];
-  NF.trigger = d.trigger||[];
-  NF.tp1hit = d.tp1hit||[];
-  NF.lossReasons = d.lossReasons||[];
-  NF.followRule = d.followRule||[];
-  if(d.bsl!==undefined) setTimeout(()=>{const el=document.getElementById('t-bsl');if(el)el.value=d.bsl;},0);
-  if(d.ssl!==undefined) setTimeout(()=>{const el=document.getElementById('t-ssl');if(el)el.value=d.ssl;},0);
-  if(d.ruleBreak!==undefined) setTimeout(()=>{const el=document.getElementById('t-rule-break');if(el)el.value=d.ruleBreak;},0);
-  if(d.emotion!==undefined) setTimeout(()=>{const el=document.getElementById('t-emotion');if(el)el.value=d.emotion;},0);
-  if(d.tp2!==undefined) setTimeout(()=>{const el=document.getElementById('t-tp2');if(el)el.value=d.tp2||'';},0);
-  if(d.exitPrice!==undefined) setTimeout(()=>{const el=document.getElementById('t-exit-price');if(el)el.value=d.exitPrice||'';},0);
+  let d; try { d = JSON.parse(json); } catch(e) { return; }
+  const arr = k => d[k]||[];
+  NF.killzone=arr('killzone'); NF.daycmd=arr('daycmd');
+  NF.htfBias=arr('htfBias'); NF.intradayBias=arr('intradayBias');
+  NF.htfPhase=arr('htfPhase');
+  NF.poiLiq=arr('poiLiq'); NF.poiOrange=arr('poiOrange'); NF.poiFocus=arr('poiFocus');
+  NF.poiType=arr('poiType'); NF.poiFresh=arr('poiFresh');
+  NF.wyckoffEvents=arr('wyckoffEvents'); NF.poiPhase=arr('poiPhase');
+  NF.volume=arr('volume'); NF.nosupply=arr('nosupply'); NF.bos=arr('bos');
+  NF.tp1hit=arr('tp1hit'); NF.lossReasons=arr('lossReasons');
+  NF.followRule=arr('followRule'); NF.dualBias=arr('dualBias');
+  const sv = (id,val) => setTimeout(()=>{const el=document.getElementById(id);if(el&&val!=null)el.value=val;},0);
+  sv('t-bsl',d.bsl); sv('t-ssl',d.ssl); sv('t-50level',d.level50);
+  sv('t-rule-break',d.ruleBreak); sv('t-emotion',d.emotion);
+  sv('t-tp2',d.tp2||''); sv('t-exit-price',d.exitPrice||'');
 }
 function calcActualR() {
   const entry = parseFloat(document.getElementById('t-entry')?.value)||null;
@@ -2268,36 +2308,41 @@ function setGrade(g){
 // ═══════════════════════════════════════════
 //  PRICE CALCULATOR
 // ═══════════════════════════════════════════
+function getSL(){return parseFloat(document.getElementById('t-sl-price')?.value||document.getElementById('t-sl')?.value)||NaN;}
 function calcPrice() {
   const entry=parseFloat(document.getElementById('t-entry').value);
-  const sl=parseFloat(document.getElementById('t-sl').value);
+  const sl=getSL();
   const tp=parseFloat(document.getElementById('t-tp').value);
   const lot=parseFloat(document.getElementById('t-lot').value)||0.01;
   const pipVal=10;
+  // mirror sl to hidden t-sl for saveTrade compatibility
+  const slEl=document.getElementById('t-sl'); if(slEl&&!isNaN(sl)) slEl.value=sl;
+  // SL pts label
+  const pts = (!isNaN(entry)&&!isNaN(sl)) ? Math.abs(entry-sl).toFixed(1)+' pts' : '';
+  const slLbl=document.getElementById('sl-pts-label'); if(slLbl) slLbl.textContent=pts?'('+pts+')':'';
+  const slPtsEl=document.getElementById('calc-slpts'); if(slPtsEl) slPtsEl.textContent=pts||'—';
   if(isNaN(entry)||isNaN(sl)||sl===entry){
-    ['calc-rr','calc-rmul','calc-profit','calc-loss','calc-pnl'].forEach(id=>document.getElementById(id).textContent='—');
+    ['calc-rmul','calc-profit','calc-loss','calc-pnl','calc-rr-display'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent='—';});
     return;
   }
   const riskPips=Math.abs(entry-sl);
   const riskDollar=riskPips*pipVal*lot;
-  let rr='—',rmul='—',profit='—',loss='-$'+riskDollar.toFixed(2),pnl='—';
+  let rmul='—',profit='—',loss='-$'+riskDollar.toFixed(2),pnl='—',rrStr='—';
   if(!isNaN(tp)&&tp!==entry){
     const rewardPips=Math.abs(tp-entry);
     const rewardDollar=rewardPips*pipVal*lot;
-    rr='1:'+(rewardPips/riskPips).toFixed(2);
+    rrStr='1:'+(rewardPips/riskPips).toFixed(2);
     rmul='+'+(rewardPips/riskPips).toFixed(2)+'R';
     profit='+$'+rewardDollar.toFixed(2);
-    if(currentResult==='win')pnl=profit;
-    else if(currentResult==='loss')pnl=loss;
-    else pnl='$0 (BE)';
   }
-  document.getElementById('calc-rr').textContent=rr;
+  const rrDisp=document.getElementById('calc-rr-display'); if(rrDisp) rrDisp.value=rrStr;
+  const rrEl=document.getElementById('calc-rr'); if(rrEl) rrEl.textContent=rrStr;
   document.getElementById('calc-rmul').textContent=rmul;
   document.getElementById('calc-profit').textContent=profit;
   document.getElementById('calc-loss').textContent=loss;
   document.getElementById('calc-pnl').textContent=currentResult==='win'?profit:currentResult==='loss'?loss:'$0 (BE)';
-}
   calcActualR();
+}
 
 function getRMultiple() {
   const entry=parseFloat(document.getElementById('t-entry').value);
@@ -2601,7 +2646,7 @@ function openTradeModal(id=null){
   document.getElementById('t-url-mtf').value=t?.url_mtf||'';
   document.getElementById('t-url-ltf').value=urlLtf;
   // NF state from reason JSON
-  Object.assign(NF,{killzone:[],htfBias:[],htfPhase:[],poiSelect:[],poiType:[],poiPhase:[],spring:[],volume:[],bos:[],trigger:[],tp1hit:[],lossReasons:[],followRule:[]});
+  Object.assign(NF,{killzone:[],daycmd:[],htfBias:[],intradayBias:[],htfPhase:[],poiLiq:[],poiOrange:[],poiFocus:[],poiType:[],poiFresh:[],wyckoffEvents:[],poiPhase:[],volume:[],nosupply:[],bos:[],tp1hit:[],lossReasons:[],followRule:[],dualBias:[]});
   nfFromJson(t?.reason||null);
   setDir(t?.dir||'Long');
   setResult(t?.result||'win');
@@ -2734,126 +2779,164 @@ function openDetail(id){
     </div>`;
   }
 
-  // Parse v5 NF data from reason JSON
+  // Parse v6 NF data from reason JSON
   let nfd = {};
   try { nfd = JSON.parse(t.reason||'{}'); } catch(e){}
-  const kzMap = {london:'London', ny:'NY'};
-  const biasMap = {bullish:'🟢 Bullish', bearish:'🔴 Bearish', unclear:'⚪ Unclear'};
-  const phaseMap = {phA:'Phase A',phB:'Phase B',phC:'Phase C',phD:'Phase D',phE:'Phase E'};
-  const trigMap = {no_supply:'No Supply',lps:'LPS',lpsy:'LPSY',test:'Test'};
-  const pill = (txt,color) => `<span style="font-size:11px;padding:3px 10px;border-radius:20px;background:${color}22;color:${color};border:1px solid ${color}55;">${txt}</span>`;
-  const kzHtml  = (nfd.killzone||[]).map(v=>pill(kzMap[v]||v,'#f5c842')).join(' ');
-  const biasHtml = (nfd.htfBias||[]).map(v=>pill(biasMap[v]||v,'#4d8eff')).join(' ');
-  const phaseHtml= (nfd.htfPhase||[]).map(v=>pill(phaseMap[v]||v,'#a78bfa')).join(' ');
-  const poiSelHtml=(nfd.poiSelect||[]).map(v=>pill(v==='poi_orange'?'POI Orange':'POI FOCUZ','#fb923c')).join(' ');
-  const poiTypeHtml=(nfd.poiType||[]).map(v=>pill(v.toUpperCase(),'#fb923c')).join(' ');
-  const poiPhaseHtml=(nfd.poiPhase||[]).map(v=>pill(phaseMap[v]||v,'#a78bfa')).join(' ');
-  const springHtml=(nfd.spring||[]).map(v=>pill(v==='yes'?'Spring ✓':'Spring ✗',v==='yes'?'#2dce78':'#ff4d6a')).join(' ');
-  const volHtml  =(nfd.volume||[]).map(v=>pill(v==='high'?'Vol สูง':v==='low'?'Vol ต่ำ':'Vol ปานกลาง','#2dce78')).join(' ');
-  const bosHtml  =(nfd.bos||[]).map(v=>pill(v==='yes'?'BOS ✓':'BOS ✗',v==='yes'?'#2dce78':'#ff4d6a')).join(' ');
-  const trigHtml =(nfd.trigger||[]).map(v=>pill(trigMap[v]||v,'#f5c842')).join(' ');
-  const tp1html  =(nfd.tp1hit||[]).map(v=>pill(v==='yes'?'TP1 ✓':'TP1 ✗',v==='yes'?'#2dce78':'#ff4d6a')).join(' ');
-  const ruleHtml =(nfd.followRule||[]).map(v=>pill(v==='yes'?'Rule ✓':'Rule ✗',v==='yes'?'#2dce78':'#ff4d6a')).join(' ');
-  const lossRMap = {wrong_phase:'Phase ผิด',fake_spring:'Spring ไม่จริง',no_vol:'Volume ไม่ยืนยัน',wrong_bias:'Bias ผิด',invalid_poi:'POI ไม่ Valid',bad_exec:'Execute ผิด Rule'};
-  const lossHtml =(nfd.lossReasons||[]).map(v=>pill(lossRMap[v]||v,'#ff4d6a')).join(' ');
-  // exit screenshot: stored in url_ltf if starts with data:
-  const exitSs = t.url_ltf?.startsWith('data:') ? t.url_ltf : null;
+
+  // ── helpers ──
+  const pill = (txt,color) => `<span style="display:inline-flex;align-items:center;padding:3px 11px;border-radius:20px;font-size:11px;font-weight:600;border:1.5px solid ${color}55;background:${color}18;color:${color};">${txt}</span>`;
+  const C = {gold:'#f5c842',blue:'#4d8eff',green:'#2dce78',red:'#ff4d6a',purple:'#a78bfa',orange:'#fb923c',muted:'#888'};
+  const sec = (label,html) => html.trim() ? `<div style="margin-bottom:10px;"><div style="font-size:9px;color:#555;font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:6px;">${label}</div><div style="display:flex;flex-wrap:wrap;gap:5px;">${html}</div></div>` : '';
+  const numrow = (label,val,col='#ccc') => val!=null&&val!==''&&val!=='—' ? `<tr><td style="color:#555;font-size:10px;font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.5px;padding:5px 0;border-bottom:1px solid #1a1e2e;">${label}</td><td style="text-align:right;font-family:'DM Mono',monospace;font-size:12px;color:${col};padding:5px 0;border-bottom:1px solid #1a1e2e;">${val}</td></tr>` : '';
+  const divider = `<div style="height:1px;background:#1e2235;margin:8px 0;"></div>`;
+
+  // ── Context pills ──
+  const kzMap = {london:'London',ny:'NY'};
+  const dcMap = {long:'Long',short:'Short',wait:'รอ',notrade:'ไม่เทรด'};
+  const phMap = {phA:'Phase A',phB:'Phase B',phC:'Phase C',phD:'Phase D',phE:'Phase E'};
+  const kzHtml   = (nfd.killzone||[]).map(v=>pill(kzMap[v]||v,C.gold)).join(' ');
+  const dcHtml   = (nfd.daycmd||[]).map(v=>pill(dcMap[v]||v,C.blue)).join(' ');
+  const htfHtml  = (nfd.htfBias||[]).map(v=>pill(v==='bullish'?'Bullish':v==='bearish'?'Bearish':'Unclear',v==='bullish'?C.green:v==='bearish'?C.red:C.muted)).join(' ');
+  const idHtml   = (nfd.intradayBias||[]).map(v=>pill(v==='bullish'?'Bullish':v==='bearish'?'Bearish':'Sideway',v==='bullish'?C.blue:v==='bearish'?C.red:C.muted)).join(' ');
+  const phHtml   = (nfd.htfPhase||[]).map(v=>pill(phMap[v]||v,C.purple)).join(' ');
+
+  // ── Liquidity & POI pills ──
+  const poiLiqHtml    = (nfd.poiLiq||[]).map(v=>pill('POI Liq '+(v==='yes'?'✓':'✗'),v==='yes'?C.orange:C.muted)).join(' ');
+  const poiOrgHtml    = (nfd.poiOrange||[]).map(v=>pill('POI Orange '+(v==='yes'?'✓':'✗'),v==='yes'?C.orange:C.muted)).join(' ');
+  const poiFocHtml    = (nfd.poiFocus||[]).map(v=>pill('POI Focus '+(v==='yes'?'✓':'✗'),v==='yes'?C.gold:C.muted)).join(' ');
+  const poiTypeHtml   = (nfd.poiType||[]).map(v=>pill(v.toUpperCase(),C.gold)).join(' ');
+  const freshHtml     = (nfd.poiFresh||[]).map(v=>pill('Fresh '+(v==='yes'?'✓':'✗'),v==='yes'?C.green:C.muted)).join(' ');
+  const poiAllHtml    = [poiLiqHtml,poiOrgHtml,poiFocHtml,poiTypeHtml,freshHtml].filter(Boolean).join(' ');
+
+  // ── Wyckoff at POI pills ──
+  const evMap = {sc:'SC',ua:'UA',stb:'STB',spring:'Spring',lps:'LPS',utad:'UTAD',lpsy:'LPSY'};
+  const evHtml     = (nfd.wyckoffEvents||[]).map(v=>pill(evMap[v]||v,C.purple)).join(' ');
+  const ppMap = {poi_liq:'POI Liq',poi_orange:'POI Orange',poi_focus:'POI Focus'};
+  const ppHtml     = (nfd.poiPhase||[]).map(v=>pill(ppMap[v]||v,C.orange)).join(' ');
+  const volHtml    = (nfd.volume||[]).map(v=>pill('Volume '+(v==='yes'?'✓':'✗'),v==='yes'?C.green:C.red)).join(' ');
+  const nsHtml     = (nfd.nosupply||[]).map(v=>pill('No Supply '+(v==='yes'?'✓':'✗'),v==='yes'?C.green:C.red)).join(' ');
+  const bosMap = {m15:'BOS M15',m5ex:'BOS M5 Exception',none:'BOS ไม่เกิด'};
+  const bosHtml    = (nfd.bos||[]).map(v=>pill(bosMap[v]||v,v==='none'?C.red:C.blue)).join(' ');
+
+  // ── Result pills ──
+  const tp1Html  = (nfd.tp1hit||[]).map(v=>pill('TP1 '+(v==='yes'?'✓':'✗'),v==='yes'?C.green:C.red)).join(' ');
+
+  // ── Loss reasons ──
+  const lrMap = {htf_bias:'HTF Bias ผิด',intra_bias:'Intraday Bias ผิด',invalid_poi:'POI ไม่ Valid',wrong_event:'Event อ่านผิด',no_vol:'Volume ไม่ยืนยัน',fake_bos:'BOS ปลอม',no_kz:'ไม่ครบ Kill Zone',bad_exec:'Execute ผิด Rule',fomo:'FOMO / อารมณ์'};
+  const lrHtml   = (nfd.lossReasons||[]).map(v=>pill(lrMap[v]||v,C.red)).join(' ');
+
+  // ── Execution ──
+  const ruleHtml = (nfd.followRule||[]).map(v=>pill('Rule '+(v==='yes'?'✓':'✗'),v==='yes'?C.green:C.red)).join(' ');
+  const dbHtml   = (nfd.dualBias||[]).map(v=>pill('Dual Bias '+(v==='yes'?'✓':'✗'),v==='yes'?C.green:C.red)).join(' ');
+  const emHtml   = nfd.emotion ? pill(nfd.emotion,C.muted) : '';
+  const rbTxt    = nfd.ruleBreak ? `<span style="font-size:11px;color:#666;"> — ${nfd.ruleBreak}</span>` : '';
+
+  // ── Screenshots ──
+  const exitSs   = t.url_ltf?.startsWith('data:') ? t.url_ltf : null;
   const realUrlLtf = t.url_ltf?.startsWith('data:') ? '' : (t.url_ltf||'');
-  const ssBlock = (src,label,color) => src
-    ? `<div><div style="font-size:9px;color:${color};font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:1px;margin-bottom:5px;">${label}</div>
-       <img src="${src}" style="width:100%;border-radius:8px;cursor:zoom-in;object-fit:cover;max-height:160px;" onclick="openLightbox('${src}','${label}')" title="คลิกเพื่อขยาย"></div>`
-    : `<div style="background:var(--ink3);border-radius:8px;height:120px;display:flex;align-items:center;justify-content:center;border:1px dashed var(--line);"><div style="text-align:center;color:var(--dim);font-size:11px;">${label}<br>ไม่มีรูป</div></div>`;
-  const ssHtml3 = `<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px;">
-    ${ssBlock(t.ss_mtf,'H4 Entry','#4d8eff')}
-    ${ssBlock(t.ss_ltf,'M15 Entry','#2dce78')}
-    ${ssBlock(exitSs,'M15 Exit','#fb923c')}
+  const ssBox = (src,label,col) => `<div style="background:#111827;border:1px solid #1e2235;border-radius:8px;overflow:hidden;">
+    <div style="font-size:9px;color:${col};font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:1px;padding:6px 8px 4px;">${label}</div>
+    ${src ? `<img src="${src}" style="width:100%;height:120px;object-fit:cover;cursor:zoom-in;" onclick="openLightbox('${src}','${label}')">` : `<div style="height:120px;display:flex;align-items:center;justify-content:center;color:#2a2e42;font-size:11px;">ไม่มีรูป</div>`}
   </div>`;
-  const urlHtml2 = `${t.url_mtf?`<a href="${t.url_mtf}" target="_blank" style="color:#4d8eff;font-size:11px;display:inline-flex;align-items:center;gap:4px;margin-bottom:4px;">🔗 H4 Chart</a><br>`:''}
-    ${realUrlLtf?`<a href="${realUrlLtf}" target="_blank" style="color:#2dce78;font-size:11px;display:inline-flex;align-items:center;gap:4px;">🔗 M15 Chart</a>`:''}`;
-  // exit R calculation
-  let exitRStr = '—';
-  if(nfd.exitPrice && t.entry && t.sl) {
-    const risk = Math.abs(t.entry - t.sl);
-    const dir = t.dir==='Long'?1:-1;
-    const rw = (nfd.exitPrice - t.entry)*dir;
-    exitRStr = (rw>=0?'+':'')+( rw/risk ).toFixed(2)+'R';
+
+  // ── R calc ──
+  let exitRStr='—';
+  if(nfd.exitPrice&&t.entry&&t.sl){
+    const risk=Math.abs(t.entry-t.sl);
+    const dir=t.dir==='Long'?1:-1;
+    const rw=(nfd.exitPrice-t.entry)*dir;
+    if(risk) exitRStr=(rw>=0?'+':'')+(rw/risk).toFixed(2)+'R';
   }
-  const infoSection = (title, html) => html
-    ? `<div style="margin-bottom:10px;"><div style="font-size:9px;color:var(--muted);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:1px;margin-bottom:5px;">${title}</div><div style="display:flex;flex-wrap:wrap;gap:4px;">${html}</div></div>`
-    : '';
+  const slPts = (t.entry&&t.sl) ? Math.abs(t.entry-t.sl).toFixed(1)+' pts' : '—';
 
   document.getElementById('detail-title').textContent='';
   document.getElementById('detail-body').innerHTML=`
     <!-- Header -->
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
       <div style="display:flex;align-items:center;gap:10px;">
-        <div style="width:36px;height:36px;border-radius:8px;background:var(--ink3);display:flex;align-items:center;justify-content:center;font-size:16px;">📊</div>
+        <div style="width:34px;height:34px;border-radius:8px;background:#1e2235;display:flex;align-items:center;justify-content:center;font-size:15px;">📊</div>
         <div>
-          <div style="font-size:18px;font-weight:700;color:var(--bright);">${t.symbol||'—'}</div>
-          <div style="font-size:11px;color:var(--muted);">Trade detail</div>
+          <div style="font-size:17px;font-weight:700;color:#fff;">${t.symbol||'—'}</div>
+          <div style="font-size:10px;color:#555;">Trade detail</div>
         </div>
       </div>
       <div style="display:flex;align-items:center;gap:6px;">
-        <span style="font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;${resultBg}">${resultLabel}</span>
-        <span style="font-size:10px;padding:3px 10px;border-radius:20px;background:var(--ink3);color:var(--muted);">${dirLabel}</span>
-        <span style="font-size:10px;padding:3px 10px;border-radius:20px;background:var(--ink3);color:var(--gold);">Grade ${gradeLabel}</span>
+        <span style="font-size:10px;font-weight:700;padding:3px 11px;border-radius:20px;${resultBg}">${resultLabel}</span>
+        <span style="font-size:10px;padding:3px 11px;border-radius:20px;background:#1e2235;color:#888;">${dirLabel}</span>
+        <span style="font-size:10px;padding:3px 11px;border-radius:20px;background:#f5c84218;color:#f5c842;">Grade ${gradeLabel}</span>
       </div>
     </div>
 
-    <!-- Screenshots -->
-    ${ssHtml3}
-    ${urlHtml2}
+    <!-- 3 Screenshots -->
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px;">
+      ${ssBox(t.ss_mtf,'H4 ตอนวางแผน','#4d8eff')}
+      ${ssBox(t.ss_ltf,'M15 ตอนเข้า','#2dce78')}
+      ${ssBox(exitSs,'M15 ตอนออก','#fb923c')}
+    </div>
 
-    <!-- 2-col layout -->
-    <div style="display:grid;grid-template-columns:1fr 260px;gap:20px;margin-top:14px;">
+    <!-- 2-col body -->
+    <div style="display:grid;grid-template-columns:1fr 240px;gap:16px;">
 
-      <!-- LEFT: Context + Analysis -->
+      <!-- LEFT -->
       <div>
-        ${infoSection('Kill Zone', kzHtml)}
-        ${infoSection('HTF Bias', biasHtml)}
-        ${infoSection('HTF Phase', phaseHtml)}
-        ${(nfd.bsl||nfd.ssl)?`<div style="margin-bottom:10px;display:flex;gap:16px;">
-          ${nfd.bsl?`<div><span style="font-size:9px;color:var(--muted);font-family:'DM Mono',monospace;text-transform:uppercase;">BSL</span><div style="font-size:12px;font-weight:600;color:#ff4d6a;">${nfd.bsl}</div></div>`:''}
-          ${nfd.ssl?`<div><span style="font-size:9px;color:var(--muted);font-family:'DM Mono',monospace;text-transform:uppercase;">SSL</span><div style="font-size:12px;font-weight:600;color:#2dce78;">${nfd.ssl}</div></div>`:''}
-        </div>`:''}
-        ${infoSection('POI', poiSelHtml+' '+poiTypeHtml)}
-        ${infoSection('Wyckoff at POI', [poiPhaseHtml,springHtml,volHtml,bosHtml,trigHtml].filter(Boolean).join(' '))}
-        ${infoSection('TP1', tp1html)}
-        ${lossHtml ? infoSection('Loss Reasons', lossHtml) : ''}
-        ${infoSection('Execution', ruleHtml+(nfd.ruleBreak?` <span style="font-size:11px;color:var(--muted);">— ${nfd.ruleBreak}</span>`:'')+' '+(nfd.emotion?pill(nfd.emotion,'#a78bfa'):''))}
-        ${t.lesson?`<div style="margin-top:12px;padding:12px;background:var(--ink3);border-radius:8px;border-left:3px solid var(--gold);">
-          <div style="font-size:9px;color:var(--gold);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:1px;margin-bottom:5px;">Lesson Learned</div>
-          <div style="font-size:12px;color:var(--text);line-height:1.6;">${t.lesson}</div>
-        </div>`:''}
+        ${sec('Kill Zone &nbsp;·&nbsp; คำสั่งวัน', kzHtml+' '+dcHtml)}
+        ${sec('HTF Bias &nbsp;·&nbsp; Intraday Bias', htfHtml+' '+idHtml)}
+        ${sec('Wyckoff Phase (MTF)', phHtml)}
+        ${divider}
+        ${(nfd.bsl||nfd.ssl||nfd.level50) ? `<div style="display:flex;gap:16px;margin-bottom:10px;">
+          ${nfd.bsl?`<div><div style="font-size:9px;color:#555;font-family:'DM Mono',monospace;text-transform:uppercase;margin-bottom:3px;">BSL</div><div style="font-size:13px;font-weight:600;color:#ff4d6a;font-family:'DM Mono',monospace;">${nfd.bsl}</div></div>`:''}
+          ${nfd.ssl?`<div><div style="font-size:9px;color:#555;font-family:'DM Mono',monospace;text-transform:uppercase;margin-bottom:3px;">SSL</div><div style="font-size:13px;font-weight:600;color:#2dce78;font-family:'DM Mono',monospace;">${nfd.ssl}</div></div>`:''}
+          ${nfd.level50?`<div><div style="font-size:9px;color:#555;font-family:'DM Mono',monospace;text-transform:uppercase;margin-bottom:3px;">50% Level</div><div style="font-size:13px;font-weight:600;color:#ccc;font-family:'DM Mono',monospace;">${nfd.level50}</div></div>`:''}
+        </div>` : ''}
+        ${sec('Liquidity &amp; POI', poiAllHtml)}
+        ${divider}
+        ${sec('Wyckoff Event', evHtml)}
+        ${sec('POI Type &nbsp;·&nbsp; Volume &nbsp;·&nbsp; BOS &nbsp;·&nbsp; No Supply', [ppHtml,volHtml,bosHtml,nsHtml].filter(Boolean).join(' '))}
+        ${divider}
+        ${sec('Result &nbsp;·&nbsp; TP1', tp1Html)}
+        ${lrHtml ? sec('ผิดตรงไหน', lrHtml) : ''}
+        ${divider}
+        ${sec('Execution', [ruleHtml,dbHtml,emHtml,rbTxt].filter(Boolean).join(' '))}
+        ${t.lesson ? `<div style="margin-top:10px;padding:10px 12px;background:#111827;border-radius:8px;border-left:3px solid #f5c842;">
+          <div style="font-size:9px;color:#f5c842;font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Lesson Learned</div>
+          <div style="font-size:12px;color:#aaa;line-height:1.6;">${t.lesson}</div>
+        </div>` : ''}
       </div>
 
-      <!-- RIGHT: Numbers -->
+      <!-- RIGHT -->
       <div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;">
-          <div style="background:var(--ink3);border-radius:8px;padding:12px;text-align:center;">
-            <div style="font-size:9px;color:var(--muted);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">R Multiple</div>
-            <div style="font-size:20px;font-weight:700;font-family:'DM Mono',monospace;color:${rColor};">${t.rmul!==null?((t.rmul>=0?'+':'')+parseFloat(t.rmul).toFixed(2)+'R'):'—'}</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;">
+          <div style="background:#111827;border:1px solid #1e2235;border-radius:10px;padding:12px;text-align:center;">
+            <div style="font-size:9px;color:#555;font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">R Multiple</div>
+            <div style="font-size:20px;font-weight:700;font-family:'DM Mono',monospace;color:${rColor};">${t.rmul!=null?((t.rmul>=0?'+':'')+parseFloat(t.rmul).toFixed(2)+'R'):'—'}</div>
           </div>
-          <div style="background:var(--ink3);border-radius:8px;padding:12px;text-align:center;">
-            <div style="font-size:9px;color:var(--muted);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">P&L</div>
-            <div style="font-size:20px;font-weight:700;font-family:'DM Mono',monospace;color:${pnlColor};">${t.pnl!==null?(t.pnl>=0?'+$':'-$')+Math.abs(t.pnl).toFixed(2):'—'}</div>
+          <div style="background:#111827;border:1px solid #1e2235;border-radius:10px;padding:12px;text-align:center;">
+            <div style="font-size:9px;color:#555;font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">P&amp;L</div>
+            <div style="font-size:20px;font-weight:700;font-family:'DM Mono',monospace;color:${pnlColor};">${t.pnl!=null?(t.pnl>=0?'+$':'-$')+Math.abs(t.pnl).toFixed(2):'—'}</div>
           </div>
         </div>
-        <div>
-          ${infoRow('Entry',t.entry,'font-family:"DM Mono",monospace;')}
-          ${infoRow('Stop Loss',t.sl,'font-family:"DM Mono",monospace;color:#ff4d6a;')}
-          ${infoRow('TP1',t.tp,'font-family:"DM Mono",monospace;color:#2dce78;')}
-          ${nfd.tp2?infoRow('TP2',nfd.tp2,'font-family:"DM Mono",monospace;color:#2dce78;'):''}
-          ${nfd.exitPrice?infoRow('Exit',nfd.exitPrice,'font-family:"DM Mono",monospace;'):''}
-          ${infoRow('Actual R',exitRStr,'font-family:"DM Mono",monospace;color:'+(exitRStr.startsWith('+')?'#2dce78':'#ff4d6a'))}
-          ${infoRow('RR',rr,'font-family:"DM Mono",monospace;')}
-          ${infoRow('Lot',t.lot,'font-family:"DM Mono",monospace;')}
+        <div style="background:#111827;border:1px solid #1e2235;border-radius:10px;padding:12px;">
+          <table style="width:100%;border-collapse:collapse;">
+            ${numrow('Entry',t.entry,'#ccc')}
+            ${numrow('Stop Loss',t.sl,'#ff4d6a')}
+            ${numrow('SL (pts)',slPts,'#ff4d6a')}
+            ${numrow('TP1',t.tp,'#2dce78')}
+            ${nfd.tp2?numrow('TP2',nfd.tp2,'#2dce78'):''}
+            ${nfd.exitPrice?numrow('ออกที่',nfd.exitPrice,'#ccc'):''}
+            ${numrow('R ที่ได้',exitRStr,exitRStr.startsWith('+')?'#2dce78':'#ff4d6a')}
+            ${numrow('R:R',rr,'#4d8eff')}
+            ${numrow('Lot',t.lot,'#ccc')}
+          </table>
         </div>
+        ${realUrlLtf||t.url_mtf ? `<div style="margin-top:10px;display:flex;flex-direction:column;gap:4px;">
+          ${t.url_mtf?`<a href="${t.url_mtf}" target="_blank" style="color:#4d8eff;font-size:11px;">🔗 H4 Chart</a>`:''}
+          ${realUrlLtf?`<a href="${realUrlLtf}" target="_blank" style="color:#2dce78;font-size:11px;">🔗 M15 Chart</a>`:''}
+        </div>` : ''}
       </div>
     </div>
 
-    <!-- Footer actions -->
-    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:20px;padding-top:16px;border-top:1px solid var(--line);">
+    <!-- Footer -->
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:16px;padding-top:14px;border-top:1px solid #1e2235;">
       <button class="btn btn-gold btn-sm" onclick="closeDetailModal();openTradeModal('${t.id}')">✏️ Edit</button>
       <button class="btn btn-ghost btn-sm" style="color:var(--red);" onclick="if(confirm('ลบ Trade นี้?')){trades=trades.filter(x=>x.id!=='${t.id}');sb.from('trades').delete().eq('id','${t.id}').then(()=>{showToast('🗑 ลบแล้ว','error');updateSidebar();renderDashboard();applyFilters();});closeDetailModal();}">🗑 Delete</button>
     </div>
