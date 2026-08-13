@@ -2680,7 +2680,7 @@ async function saveTrade(){
     htf_tf:'H4',
     htf_trend:biasLabel,
     mtf_tf:'M15',
-    mtf_setup_name:NF.trigger.join(','),
+    mtf_setup_name:(NF.wyckoffEvents||[]).join(','),
     mtf_session:kzLabel,
     mtf_sessions:NF.killzone,
     mtf_tags:selectedTags.mtf,
